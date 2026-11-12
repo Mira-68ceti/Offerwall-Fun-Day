@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="he">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>html{padding:0}body{margin:0}[hidden]{display:none!important}</style>
+<meta charset="utf-8">
+<title>Offerwall Team Day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap">
+<style>
+/* Layout: phone-width rewards-wall feed. Illustrated hero, filter tabs, two shelves of glossy gold game cards with cartoon scenes, slide-up detail sheet. */
+:root{
+  --bg:#0E1730;
+  --surface:#18264A;
+  --line:#2A3A63;
+  --ink:#F4F6FC;
+  --muted:#9AA8C7;
+  --gold1:#D1A313;
+  --gold2:#A67C00;
+  --lime:#C6F432;
+  --coral:#FF5A5F;
+  --waze:#33CCFF;
+  --font:'Heebo',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{font-family:var(--font);color:var(--ink);font-size:15px;line-height:1.45}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+.gem{width:1em;height:1em;display:inline-block;vertical-align:-.12em}
+.app{max-width:480px;margin-inline:auto;min-height:100%;position:relative;overflow-x:clip}
+
+/* HERO */
+.hero{position:relative;height:230px;overflow:hidden;display:grid;place-items:center;text-align:center;
+  padding-inline:max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px))}
+.hero > svg{position:absolute;inset:0;width:100%;height:100%}
+.hero .txt{position:relative;z-index:2;margin-top:6px}
+.hero h1{margin:0;line-height:1;font-weight:900;font-size:clamp(30px,9vw,40px);color:#fff;
+  -webkit-text-stroke:2px #0A2A6B;paint-order:stroke fill;
+  text-shadow:0 4px 0 #0A2A6B,0 8px 14px rgba(0,0,0,.35)}
+.hero h1 .l2{display:block;font-size:clamp(36px,10.5vw,50px);margin-top:2px;
+  background:linear-gradient(180deg,#FFF3A0 0%,#FFD23F 45%,#E39A00 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  -webkit-text-stroke:0;filter:drop-shadow(0 3px 0 #6B3F00) drop-shadow(0 0 1px #6B3F00)}
+.hero .when{display:inline-block;margin-top:12px;padding:5px 16px;border-radius:99px;background:var(--lime);color:#12210A;font-weight:800;font-size:15px;box-shadow:0 3px 0 #8FB31B}
+.balance{position:absolute;z-index:3;top:calc(12px + env(safe-area-inset-top, 0px));inset-inline-start:max(14px, env(safe-area-inset-right, 0px));
+  display:flex;align-items:center;gap:6px;padding:6px 12px 6px 10px;border-radius:99px;background:rgba(8,16,40,.72);font-weight:800;font-size:16px;backdrop-filter:blur(4px)}
+.balance .gem{font-size:20px}
+
+/* PROGRESS */
+.progress{padding:14px max(16px, env(safe-area-inset-right, 0px)) 4px max(16px, env(safe-area-inset-left, 0px))}
+.progress .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.progress .t{font-weight:700}
+.progress .n{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.bar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.bar i{height:9px;border-radius:99px;background:var(--line);transition:background .25s}
+.bar i.on{background:var(--lime)}
+
+/* TABS */
+.tabs{display:flex;gap:6px;padding:10px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));border-bottom:1px solid var(--line)}
+.tab{padding:12px 16px;font-size:18px;color:var(--muted);font-weight:500;position:relative}
+.tab[aria-selected="true"]{color:#FFD23F;font-weight:700}
+.tab[aria-selected="true"]::after{content:"";position:absolute;inset:auto 12px -1px;height:3px;border-radius:3px;background:#FFD23F}
+
+/* SHELVES */
+.shelf{padding:26px 0 8px}
+.shelf + .shelf{border-top:1px solid var(--line);margin-top:18px}
+.shelf[hidden]{display:none}
+.shelf-h{display:flex;align-items:center;gap:14px;padding-inline:max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-left, 0px));margin-bottom:16px}
+.shelf-h svg{width:40px;height:40px;flex:none}
+.shelf-h h2{margin:0;font-size:23px;font-weight:800;line-height:1.15}
+.shelf-h p{margin:2px 0 0;color:var(--muted);font-size:14px}
+
+.row-scroll{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px));scrollbar-width:none}
+.row-scroll::-webkit-scrollbar{display:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-inline:max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-left, 0px))}
+
+/* CARDS */
+.card{display:block;text-align:start;border-radius:22px;overflow:hidden;position:relative;min-width:0;
+  background:linear-gradient(180deg,var(--gold1),var(--gold2));
+  box-shadow:0 10px 22px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.35);transition:transform .15s}
+.card:active{transform:scale(.98)}
+.card.big{flex:0 0 80%;scroll-snap-align:start}
+.card .art{position:relative;overflow:hidden;line-height:0}
+.card.big .art{height:176px}
+.card.mini .art{height:132px}
+.card .art > svg{width:100%;height:100%;display:block}
+.art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.22),transparent 38%);pointer-events:none}
+.pill{position:absolute;z-index:2;top:10px;display:flex;align-items:center;gap:5px;line-height:1;padding:6px 10px;border-radius:99px;background:rgba(10,18,44,.78);color:#fff;font-weight:800;font-size:14px;backdrop-filter:blur(4px)}
+.pill.l{inset-inline-start:10px}
+.pill.r{inset-inline-end:10px}
+.pill .gem{font-size:16px}
+.pill.done{background:var(--lime);color:#12210A}
+.gbar{display:flex;align-items:center;gap:12px;padding:12px 14px;color:#fff;text-shadow:0 1px 0 rgba(60,40,0,.55)}
+.tile{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),0 3px 6px rgba(0,0,0,.3)}
+.tile svg{width:26px;height:26px;fill:#fff;text-shadow:none}
+.gbar .tx{flex:1;min-width:0}
+.ti{font-weight:800;font-size:18px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.su{font-size:13px;color:#FFF3C4;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rw{flex:none;text-align:end;line-height:1.05}
+.rw small{display:block;font-size:11px;letter-spacing:.06em;font-weight:700;color:#FFF3C4}
+.rw b{font-size:25px;font-weight:900;font-variant-numeric:tabular-nums}
+.rw b .gem{font-size:18px}
+.card.mini .gbar{display:block;padding:11px 12px 12px}
+.card.mini .ti{white-space:normal;font-size:16px}
+.card.mini .su{white-space:normal}
+.card.mini .rw{display:flex;align-items:baseline;justify-content:flex-start;gap:8px;margin-top:8px;text-align:start}
+.card.mini .rw small{display:inline}
+.card.mini .rw b{font-size:21px}
+
+.foot{padding:26px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px));text-align:center;color:var(--muted);font-size:13px}
+
+/* DETAIL SHEET */
+.sheet{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;transform:translateY(100%);visibility:hidden;
+  transition:transform .32s cubic-bezier(.2,.8,.2,1),visibility 0s .32s}
+.sheet.open{transform:none;visibility:visible;transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.sheet-in{max-width:480px;margin-inline:auto;min-height:100%;display:flex;flex-direction:column;position:relative}
+.s-art{height:260px;flex:none;border-radius:0 0 28px 28px;overflow:hidden;line-height:0;position:relative}
+.s-art > svg{width:100%;height:100%}
+.back{position:absolute;z-index:3;top:calc(14px + env(safe-area-inset-top, 0px));inset-inline-start:max(14px, env(safe-area-inset-right, 0px));
+  width:44px;height:44px;border-radius:50%;background:rgba(14,23,48,.75);display:grid;place-items:center;font-size:22px;backdrop-filter:blur(4px)}
+.s-body{padding:22px max(18px, env(safe-area-inset-right, 0px)) 24px max(18px, env(safe-area-inset-left, 0px));flex:1}
+.s-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.chip{padding:5px 12px;border-radius:99px;font-weight:700;font-size:13px;background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.chip.time{background:var(--lime);color:#12210A;border-color:transparent}
+.s-body h2{margin:0;font-size:32px;font-weight:900;line-height:1.1}
+.s-body .lead{margin:8px 0 0;color:var(--muted);font-size:16px}
+.reward{margin-top:14px;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:16px;background:linear-gradient(180deg,var(--gold1),var(--gold2));font-weight:800;text-shadow:0 1px 0 rgba(60,40,0,.5)}
+.reward .gem{font-size:24px}
+.s-body h3{margin:26px 0 12px;font-size:14px;letter-spacing:.08em;color:#FFD23F;font-weight:800}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:s}
+.steps li{counter-increment:s;display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;font-size:16px}
+.steps li::before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:#FFD23F;color:#2B2100;font-weight:900;display:grid;place-items:center;font-size:14px;margin-top:1px}
+.cta{position:sticky;bottom:0;padding:14px max(18px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+  background:linear-gradient(180deg,rgba(14,23,48,0),var(--bg) 28%);display:grid;gap:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;border-radius:18px;font-weight:800;font-size:18px;width:100%}
+.btn.waze{background:var(--waze);color:#06223B;box-shadow:0 6px 0 #1596BE}
+.btn.waze:active{transform:translateY(3px);box-shadow:0 3px 0 #1596BE}
+.btn.ok{background:var(--surface);border:2px solid var(--line);color:var(--ink);height:50px;font-size:16px}
+.btn.ok[aria-pressed="true"]{background:var(--lime);color:#12210A;border-color:var(--lime)}
+.btn.main-ok{background:var(--lime);color:#12210A;box-shadow:0 6px 0 #8FB31B}
+.btn.main-ok[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:none;border:2px solid var(--line)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gemg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFA8EE"/><stop offset="1" stop-color="#8A4DFF"/></linearGradient>
+    <linearGradient id="goldg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE27A"/><stop offset="1" stop-color="#E39A00"/></linearGradient>
+    <symbol id="gem" viewBox="0 0 24 24"><path d="M6 3h12l5 6-11 13L1 9z" fill="url(#gemg)" stroke="#5A2BC0" stroke-width="1" stroke-linejoin="round"/><path d="M1 9h22M8 9l4 13 4-13M6 3l2 6M18 3l-2 6M12 3l-4 6M12 3l4 6" stroke="#fff" stroke-opacity=".65" stroke-width=".8" fill="none"/></symbol>
+    <symbol id="ic-office" viewBox="0 0 24 24"><path d="M4 21V5l10-2v18zM14 9h6v12h-6z"/><path d="M7 8h2v2H7zM7 12h2v2H7zM10 8h2v2h-2zM10 12h2v2h-2z" fill="#0E1730"/></symbol>
+    <symbol id="ic-cup" viewBox="0 0 24 24"><path d="M3 9h13v5a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5zM16 10h2a3 3 0 0 1 0 6h-2v-2h2a1 1 0 0 0 0-2h-2z"/><path d="M7 2c0 2-2 2-2 4M11 2c0 2-2 2-2 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round" fill="none"/></symbol>
+    <symbol id="ic-lock" viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1zm2 0h6V7a3 3 0 0 0-6 0z"/></symbol>
+    <symbol id="ic-burger" viewBox="0 0 24 24"><path d="M4 11a8 6 0 0 1 16 0zM3 13h18v2H3zM5 17h14v1a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/></symbol>
+  </defs>
+</svg>
+
+<div class="app" dir="rtl" lang="he">
+  <header class="hero" id="hero">
+    <div class="balance" aria-label="יתרת גמים"><svg class="gem"><use href="#gem"/></svg><span id="bal">0</span></div>
+    <div class="txt">
+      <h1>יום צוות<span class="l2">Offerwall</span></h1>
+      <span class="when">24.11 · 4 תחנות</span>
+    </div>
+  </header>
+
+  <section class="progress" aria-label="התקדמות">
+    <div class="row"><span class="t">המסלול שלכם להיום</span><span class="n" id="count">0 מתוך 4</span></div>
+    <div class="bar" id="bar"><i></i><i></i><i></i><i></i></div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="סינון">
+    <button class="tab" role="tab" aria-selected="true" data-f="all">הכל</button>
+    <button class="tab" role="tab" aria-selected="false" data-f="warm">חימום</button>
+    <button class="tab" role="tab" aria-selected="false" data-f="main">העיקר</button>
+  </nav>
+
+  <section class="shelf" id="shelf-warm">
+    <div class="shelf-h">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3c6 4 9 11 8 20l-4 4h-8l-4-4C11 14 14 7 20 3z" fill="#F4F6FC"/><circle cx="20" cy="15" r="4" fill="#33CCFF" stroke="#0E1730" stroke-width="1.5"/><path d="M12 22l-6 8 8-2zM28 22l6 8-8-2z" fill="#FF5A5F"/><path d="M16 28h8l-4 10z" fill="#FFB020"/></svg>
+      <div><h2>חימום מהיר</h2><p>קלים וכיפיים, מתחילים מכאן</p></div>
+    </div>
+    <div class="grid2" id="warm"></div>
+  </section>
+
+  <section class="shelf" id="shelf-main">
+    <div class="shelf-h">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M11 5h18v9a9 9 0 0 1-18 0z" fill="url(#goldg)" stroke="#8A5A00" stroke-width="1.5"/><path d="M11 8H5c0 7 3 9 7 10M29 8h6c0 7-3 9-7 10" fill="none" stroke="#E39A00" stroke-width="2.4" stroke-linecap="round"/><rect x="17" y="22" width="6" height="7" fill="#E39A00"/><rect x="11" y="29" width="18" height="6" rx="2" fill="url(#goldg)" stroke="#8A5A00" stroke-width="1.5"/></svg>
+      <div><h2>האירועים המרכזיים</h2><p>כאן מתחיל הכיף האמיתי</p></div>
+    </div>
+    <div class="row-scroll" id="main"></div>
+  </section>
+
+  <p class="foot">לחצו על תחנה כדי לראות הוראות והגעה</p>
+</div>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="s-title" aria-hidden="true" dir="rtl" lang="he">
+  <div class="sheet-in">
+    <button class="back" id="back" aria-label="חזרה">→</button>
+    <div class="s-art" id="s-art"></div>
+    <div class="s-body">
+      <div class="s-meta" id="s-meta"></div>
+      <h2 id="s-title"></h2>
+      <p class="lead" id="s-lead"></p>
+      <div class="reward" id="s-reward"></div>
+      <h3>ההוראות</h3>
+      <ol class="steps" id="s-steps"></ol>
+    </div>
+    <div class="cta" id="s-cta"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Illustrations (original cartoon scenes) ---------- */
+var uid = 0;
+function svgWrap(vb, inner){ return '<svg viewBox="'+vb+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+inner+'</svg>'; }
+
+function sparkle(x,y,s,c){ return '<path transform="translate('+x+' '+y+') scale('+s+')" d="M0-10C1-3 3-1 10 0 3 1 1 3 0 10-1 3-3 1-10 0-3-1-1-3 0-10z" fill="'+c+'"/>'; }
+function confetti(list){ return list.map(function(p){ return '<rect x="'+p[0]+'" y="'+p[1]+'" width="'+p[2]+'" height="'+p[2]+'" rx="2" fill="'+p[3]+'" transform="rotate('+p[4]+' '+p[0]+' '+p[1]+')"/>'; }).join(''); }
+
+function character(cx, cy, o){
+  var s = '';
+  s += '<g transform="rotate('+(o.tilt||0)+' '+cx+' '+cy+')">';
+  s += '<ellipse cx="'+cx+'" cy="'+(cy+64)+'" rx="50" ry="32" fill="'+o.shirt+'"/>';
+  s += '<path d="M'+(cx-24)+' '+(cy+44)+' Q'+cx+' '+(cy+62)+' '+(cx+24)+' '+(cy+44)+'" stroke="rgba(255,255,255,.55)" stroke-width="5" fill="none" stroke-linecap="round"/>';
+  s += '<ellipse cx="'+cx+'" cy="'+(cy-4)+'" rx="42" ry="40" fill="'+o.hair+'"/>';
+  s += '<circle cx="'+cx+'" cy="'+cy+'" r="34" fill="'+o.skin+'"/>';
+  if(o.beard) s += '<path d="M'+(cx-33)+' '+(cy+2)+' Q'+(cx-36)+' '+(cy+46)+' '+cx+' '+(cy+48)+' Q'+(cx+36)+' '+(cy+46)+' '+(cx+33)+' '+(cy+2)+' Q'+cx+' '+(cy+20)+' '+(cx-33)+' '+(cy+2)+'Z" fill="'+o.hair+'"/>';
+  s += '<path d="M'+(cx-34)+' '+(cy-6)+' Q'+(cx-10)+' '+(cy-34)+' '+(cx+34)+' '+(cy-8)+' Q'+(cx+6)+' '+(cy-18)+' '+(cx-34)+' '+(cy-6)+'Z" fill="'+o.hair+'"/>';
+  s += '<circle cx="'+(cx-12)+'" cy="'+(cy+2)+'" r="5" fill="#2B1A12"/><circle cx="'+(cx+12)+'" cy="'+(cy+2)+'" r="5" fill="#2B1A12"/>';
+  s += '<circle cx="'+(cx-10.5)+'" cy="'+(cy+0.5)+'" r="1.7" fill="#fff"/><circle cx="'+(cx+13.5)+'" cy="'+(cy+0.5)+'" r="1.7" fill="#fff"/>';
+  s += '<circle cx="'+(cx-22)+'" cy="'+(cy+13)+'" r="5" fill="#FF8FA3" opacity=".55"/><circle cx="'+(cx+22)+'" cy="'+(cy+13)+'" r="5" fill="#FF8FA3" opacity=".55"/>';
+  s += '<path d="M'+(cx-12)+' '+(cy+15)+' Q'+cx+' '+(cy+33)+' '+(cx+12)+' '+(cy+15)+'Z" fill="#fff" stroke="#8A2F1F" stroke-width="2" stroke-linejoin="round"/>';
+  s += '<path d="M'+(cx-22)+' '+(cy-26)+' L'+(cx+4)+' '+(cy-80)+' L'+(cx+28)+' '+(cy-22)+'Z" fill="'+o.hat+'"/>';
+  s += '<path d="M'+(cx-12)+' '+(cy-44)+' L'+(cx+18)+' '+(cy-48)+' M'+(cx-4)+' '+(cy-62)+' L'+(cx+10)+' '+(cy-64)+'" stroke="rgba(255,255,255,.75)" stroke-width="5" stroke-linecap="round"/>';
+  s += '<circle cx="'+(cx+4)+'" cy="'+(cy-82)+'" r="8" fill="#fff"/>';
+  s += '</g>';
+  return s;
+}
+
+function sceneHero(){
+  var u = ++uid;
+  var bulbs = '';
+  var cols = ['#FF5A5F','#FFD23F','#C6F432','#33CCFF','#FF8FD8'];
+  for(var i=0;i<12;i++){ var x = 20 + i*40; var y = 12 + 14*Math.sin(i*0.9) + (i%2?4:0); bulbs += '<circle cx="'+x+'" cy="'+(y+6)+'" r="5" fill="'+cols[i%5]+'"/><rect x="'+(x-2)+'" y="'+(y-1)+'" width="4" height="4" fill="#223"/>'; }
+  var rays = '';
+  for(var r=0;r<12;r++){ var a = r*30*Math.PI/180, a2=(r*30+14)*Math.PI/180; rays += '<path d="M240 120 L'+(240+420*Math.cos(a))+' '+(120+420*Math.sin(a))+' L'+(240+420*Math.cos(a2))+' '+(120+420*Math.sin(a2))+'Z" fill="#fff" opacity=".07"/>'; }
+  var inner =
+   '<defs><linearGradient id="hb'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E3FA8"/><stop offset=".6" stop-color="#18A2C8"/><stop offset="1" stop-color="#3BD6A5"/></linearGradient></defs>' +
+   '<rect width="480" height="230" fill="url(#hb'+u+')"/>' + rays +
+   '<path d="M0 190 Q120 160 240 186 T480 176 V230 H0Z" fill="#1E9A55"/><path d="M0 206 Q140 184 270 204 T480 198 V230 H0Z" fill="#157A44"/>' +
+   '<path d="M0 12 Q120 34 240 12 T480 12" stroke="#223" stroke-width="2" fill="none"/>' + bulbs +
+   confetti([[110,60,9,'#FFD23F',20],[372,64,10,'#FF5A5F',-25],[150,176,8,'#C6F432',40],[340,170,9,'#FF8FD8',10],[205,40,7,'#fff',30],[285,48,8,'#C6F432',-15]]) +
+   sparkle(150,98,1,'#fff') + sparkle(330,92,.8,'#FFE27A') + sparkle(250,30,.7,'#fff') +
+   character(58,126,{skin:'#FFD2B0',hair:'#E8651F',hat:'#C6F432',shirt:'#E0384A',tilt:-8}) +
+   character(422,124,{skin:'#F2B98F',hair:'#5B2E17',hat:'#FF5A5F',shirt:'#2F6BFF',beard:true,tilt:8}) +
+   '<use href="#gem" x="118" y="172" width="22" height="22"/><use href="#gem" x="344" y="176" width="24" height="24"/><use href="#gem" x="372" y="150" width="16" height="16"/><use href="#gem" x="98" y="150" width="14" height="14"/>';
+  return svgWrap('0 0 480 230', inner);
+}
+
+function sceneOffice(){
+  var u = ++uid, wins = '';
+  [58,80,102].forEach(function(y,ri){ [100,128,156].forEach(function(x,ci){ wins += '<rect x="'+x+'" y="'+y+'" width="20" height="14" rx="3" fill="'+(((ri+ci)%3===0)?'#FFE27A':'#5BC0FF')+'"/>'; }); });
+  return svgWrap('0 0 300 170',
+   '<defs><linearGradient id="o'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3E8EFF"/><stop offset="1" stop-color="#BDE8FF"/></linearGradient></defs>' +
+   '<rect width="300" height="170" fill="url(#o'+u+')"/>' +
+   '<circle cx="250" cy="34" r="30" fill="#FFE27A" opacity=".3"/><circle cx="250" cy="34" r="19" fill="#FFE27A"/>' +
+   '<g fill="#fff" opacity=".92"><ellipse cx="58" cy="40" rx="28" ry="10"/><ellipse cx="80" cy="33" rx="18" ry="10"/><ellipse cx="205" cy="62" rx="24" ry="8"/></g>' +
+   '<path d="M0 142 Q80 116 160 138 T300 130 V170 H0Z" fill="#4CCB6A"/><rect y="152" width="300" height="18" fill="#2FA855"/>' +
+   '<rect x="94" y="42" width="116" height="110" rx="6" fill="#26398A"/><rect x="88" y="38" width="112" height="112" rx="6" fill="#EEF2FF"/>' +
+   '<rect x="84" y="30" width="120" height="14" rx="6" fill="#FF5A5F"/>' +
+   '<text x="144" y="41" font-size="9" fill="#fff" font-weight="800" text-anchor="middle" font-family="Heebo,Arial,sans-serif">OFFERWALL</text>' +
+   wins + '<rect x="132" y="122" width="24" height="30" rx="4" fill="#26398A"/><circle cx="151" cy="138" r="2" fill="#FFD23F"/>' +
+   '<line x1="144" y1="30" x2="144" y2="10" stroke="#445" stroke-width="2"/><path d="M144 10l18 5-18 5z" fill="#C6F432"/>' +
+   '<rect x="42" y="124" width="6" height="28" fill="#6B3F1E"/><circle cx="45" cy="118" r="20" fill="#1F9A47"/><circle cx="36" cy="126" r="13" fill="#27B455"/>' +
+   '<rect x="252" y="128" width="6" height="24" fill="#6B3F1E"/><circle cx="255" cy="122" r="17" fill="#1F9A47"/><circle cx="262" cy="130" r="11" fill="#27B455"/>' +
+   confetti([[20,70,8,'#FFD23F',20],[270,90,8,'#FF5A5F',-20],[230,20,7,'#C6F432',30]]) + sparkle(40,40,.7,'#fff'));
+}
+
+function sceneCoffee(){
+  var u = ++uid;
+  return svgWrap('0 0 300 170',
+   '<defs><linearGradient id="c'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFC371"/><stop offset="1" stop-color="#FF5F6D"/></linearGradient></defs>' +
+   '<rect width="300" height="170" fill="url(#c'+u+')"/><circle cx="150" cy="96" r="92" fill="#fff" opacity=".17"/><circle cx="150" cy="96" r="62" fill="#fff" opacity=".14"/>' +
+   '<ellipse cx="150" cy="150" rx="70" ry="11" fill="#7A2A1A" opacity=".35"/><ellipse cx="150" cy="144" rx="66" ry="10" fill="#F7E8D0"/>' +
+   '<path d="M232 90q34 0 34 24t-36 22" stroke="#FFF7EA" stroke-width="10" fill="none" stroke-linecap="round" transform="translate(-30 -6)"/>' +
+   '<path d="M98 72H202V110Q202 142 170 142H130Q98 142 98 110Z" fill="#FFF7EA"/><path d="M98 94H202V104H98Z" fill="#FF5A5F"/>' +
+   '<ellipse cx="150" cy="72" rx="52" ry="11" fill="#fff"/><ellipse cx="150" cy="73" rx="45" ry="8" fill="#6B3A1E"/><ellipse cx="150" cy="72" rx="26" ry="4" fill="#A56A3A"/>' +
+   '<g stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".9"><path d="M128 54c-9-10 9-18 0-28"/><path d="M150 52c-9-10 9-18 0-30"/><path d="M172 54c-9-10 9-18 0-28"/></g>' +
+   '<circle cx="250" cy="132" r="14" fill="none" stroke="#F4B6D2" stroke-width="16"/><circle cx="250" cy="132" r="14" fill="none" stroke="#FF6FA8" stroke-width="9" stroke-dasharray="70 18"/>' +
+   '<g stroke-width="2.4" stroke-linecap="round"><path d="M240 120l4-2" stroke="#fff"/><path d="M258 118l4 2" stroke="#C6F432"/><path d="M262 134l4-1" stroke="#fff"/></g>' +
+   '<circle cx="46" cy="130" r="20" fill="#D99A4E"/><circle cx="46" cy="130" r="20" fill="none" stroke="#B87A32" stroke-width="2"/><circle cx="40" cy="124" r="3.5" fill="#4A2A12"/><circle cx="52" cy="128" r="3.5" fill="#4A2A12"/><circle cx="44" cy="137" r="3.5" fill="#4A2A12"/><circle cx="55" cy="139" r="2.8" fill="#4A2A12"/>' +
+   sparkle(60,50,.9,'#fff') + sparkle(250,52,.7,'#FFE27A') + confetti([[24,82,7,'#fff',20],[280,84,7,'#C6F432',-20]]));
+}
+
+function sceneEscape(){
+  var u = ++uid, stars='';
+  [[30,24],[70,60],[250,30],[270,80],[40,110],[200,18],[120,16]].forEach(function(p,i){ stars += '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(1.4+(i%3)*.5)+'" fill="#fff" opacity=".85"/>'; });
+  return svgWrap('0 0 300 170',
+   '<defs><linearGradient id="e'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3B22A0"/><stop offset="1" stop-color="#0E0A2E"/></linearGradient>' +
+   '<radialGradient id="g'+u+'"><stop offset="0" stop-color="#2EE6D0" stop-opacity=".85"/><stop offset="1" stop-color="#2EE6D0" stop-opacity="0"/></radialGradient></defs>' +
+   '<rect width="300" height="170" fill="url(#e'+u+')"/>' + stars +
+   '<circle cx="150" cy="96" r="88" fill="url(#g'+u+')"/>' +
+   '<ellipse cx="150" cy="158" rx="76" ry="9" fill="#000" opacity=".35"/>' +
+   '<path d="M92 156V82A58 58 0 0 1 208 82V156Z" fill="#7A4A22" stroke="#FFD23F" stroke-width="6" stroke-linejoin="round"/>' +
+   '<g stroke="#5A3414" stroke-width="3"><path d="M121 38V156M150 24V156M179 38V156"/></g>' +
+   '<rect x="94" y="104" width="112" height="9" fill="#3A3F55"/><g fill="#9AA3C0"><circle cx="104" cy="108.5" r="2.4"/><circle cx="196" cy="108.5" r="2.4"/><circle cx="150" cy="108.5" r="2.4"/></g>' +
+   '<path d="M135 100V88a15 15 0 0 1 30 0V100" fill="none" stroke="#E6E9F5" stroke-width="8" stroke-linecap="round"/>' +
+   '<rect x="127" y="98" width="46" height="40" rx="9" fill="#FFD23F" stroke="#B8860B" stroke-width="2.5"/><circle cx="150" cy="114" r="6" fill="#2B1B00"/><rect x="147.5" y="116" width="5" height="12" rx="2" fill="#2B1B00"/>' +
+   '<circle cx="50" cy="52" r="22" fill="#fff" stroke="#FF5A5F" stroke-width="6"/><path d="M50 52V38M50 52l11 6" stroke="#223" stroke-width="3.5" stroke-linecap="round"/><circle cx="50" cy="52" r="2.6" fill="#223"/>' +
+   '<g transform="rotate(35 250 60)"><circle cx="236" cy="60" r="9" fill="none" stroke="#FFD23F" stroke-width="5"/><path d="M245 60h30M265 60v9M273 60v7" stroke="#FFD23F" stroke-width="5" stroke-linecap="round"/></g>' +
+   sparkle(72,112,.9,'#C6F432') + sparkle(232,120,.8,'#fff') + sparkle(100,20,.7,'#FFE27A'));
+}
+
+function sceneDinner(){
+  var u = ++uid;
+  return svgWrap('0 0 300 170',
+   '<defs><linearGradient id="d'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF8A5B"/><stop offset="1" stop-color="#B8235A"/></linearGradient></defs>' +
+   '<rect width="300" height="170" fill="url(#d'+u+')"/><circle cx="150" cy="92" r="90" fill="#fff" opacity=".13"/>' +
+   '<ellipse cx="100" cy="158" rx="58" ry="8" fill="#400" opacity=".3"/><ellipse cx="226" cy="158" rx="50" ry="8" fill="#400" opacity=".3"/>' +
+   /* cow */
+   '<ellipse cx="58" cy="62" rx="16" ry="10" fill="#fff" transform="rotate(-25 58 62)"/><ellipse cx="58" cy="62" rx="8" ry="5" fill="#FFB3C7" transform="rotate(-25 58 62)"/>' +
+   '<ellipse cx="142" cy="62" rx="16" ry="10" fill="#fff" transform="rotate(25 142 62)"/><ellipse cx="142" cy="62" rx="8" ry="5" fill="#FFB3C7" transform="rotate(25 142 62)"/>' +
+   '<path d="M72 54Q66 34 76 28Q82 40 84 54Z M128 54Q134 34 124 28Q118 40 116 54Z" fill="#FFF1C9" stroke="#D9B66A" stroke-width="1.5"/>' +
+   '<rect x="62" y="50" width="76" height="86" rx="36" fill="#fff"/><ellipse cx="82" cy="66" rx="14" ry="10" fill="#2B2B33"/><ellipse cx="124" cy="76" rx="9" ry="12" fill="#2B2B33"/>' +
+   '<ellipse cx="100" cy="116" rx="30" ry="20" fill="#FFB3C7"/><ellipse cx="90" cy="116" rx="4" ry="6" fill="#B04A6B"/><ellipse cx="110" cy="116" rx="4" ry="6" fill="#B04A6B"/>' +
+   '<circle cx="84" cy="92" r="6.5" fill="#2B1A12"/><circle cx="116" cy="92" r="6.5" fill="#2B1A12"/><circle cx="86" cy="90" r="2" fill="#fff"/><circle cx="118" cy="90" r="2" fill="#fff"/>' +
+   /* burger */
+   '<path d="M184 138H268V144Q268 152 258 152H194Q184 152 184 144Z" fill="#E8A33D"/>' +
+   '<rect x="182" y="124" width="88" height="15" rx="7.5" fill="#5A2E14"/>' +
+   '<path d="M180 120h92l-4 8h-84z" fill="#FFD23F"/>' +
+   '<path d="M182 112q8 8 16 0t16 0 16 0 16 0 16 0 10 2v8H182z" fill="#3DBE5A"/>' +
+   '<rect x="188" y="104" width="76" height="9" rx="4.5" fill="#E8392E"/>' +
+   '<path d="M182 104Q182 66 226 66T270 104Z" fill="#F2B14C"/>' +
+   '<g fill="#FFF3D0"><ellipse cx="206" cy="82" rx="4" ry="2.2" transform="rotate(-20 206 82)"/><ellipse cx="226" cy="76" rx="4" ry="2.2"/><ellipse cx="246" cy="84" rx="4" ry="2.2" transform="rotate(20 246 84)"/><ellipse cx="216" cy="92" rx="4" ry="2.2" transform="rotate(10 216 92)"/><ellipse cx="238" cy="96" rx="4" ry="2.2" transform="rotate(-10 238 96)"/></g>' +
+   sparkle(160,40,.9,'#fff') + sparkle(280,50,.7,'#FFE27A') + sparkle(24,120,.7,'#fff') + confetti([[150,150,7,'#C6F432',20],[20,40,8,'#FFD23F',-20]]));
+}
+
+var SCENES = {office:sceneOffice, coffee:sceneCoffee, escape:sceneEscape, dinner:sceneDinner};
+
+/* ---------- Content: edit this list to change the day's details ---------- */
+var STOPS = [
+  {id:1, group:'warm', scene:'office', icon:'ic-office', tileBg:'linear-gradient(150deg,#4C6BFF,#1D2F9C)', title:'נפגשים במשרד', sub:'נקודת הפתיחה', lead:'כולם יחד, ומשם יוצאים להרפתקה.',
+   time:'', place:'המשרד', reward:50,
+   steps:['הגיעו למשרד בזמן ופגשו את שאר הצוות.','ודאו שאתם יודעים עם מי נוסעים לראשון לציון.','כשכולם כאן, ממשיכים לתחנה הבאה.'], waze:''},
+  {id:2, group:'warm', scene:'coffee', icon:'ic-cup', tileBg:'linear-gradient(150deg,#D4772F,#6A3112)', title:'קפה ונשנוש', sub:'מטענים אנרגיה', lead:'לפני שנכנסים לחדר, צריך להטעין סוללות.',
+   time:'', place:'לפני האתגר', reward:50,
+   steps:['קחו קפה ומשהו קטן לנשנש.','נצלו את הזמן להכיר את הצוות לפני החידות.','כשכולם מוכנים, ממשיכים לחדר.'], waze:''},
+  {id:3, group:'main', scene:'escape', icon:'ic-lock', tileBg:'linear-gradient(150deg,#8A4DFF,#2A1380)', title:'ההתערבות', sub:'ראשון לציון', lead:'הדלת נסגרת, השעון מתחיל לתקתק… תצליחו לצאת?',
+   time:'16:00', place:'ראשון לציון', reward:300,
+   steps:['הגיעו לראשון לציון לפני 16:00.','לחצו על "נווטו ב-Waze" כדי לנסוע ישר למקום.','בפנים עובדים כצוות ומשתפים כל רמז.','יצאתם בזמן? הארוחה כבר מחכה.'],
+   waze:'https://waze.com/ul?q=' + encodeURIComponent('ההתערבות ראשון לציון') + '&navigate=yes'},
+  {id:4, group:'main', scene:'dinner', icon:'ic-burger', tileBg:'linear-gradient(150deg,#FF6A4D,#8E1B4E)', title:'Moo ve Moo', sub:'רחובות', lead:'השולחן שלכם מחכה. אחרי כל החידות מגיע הזמן לאכול.',
+   time:'19:00', place:'רחובות', reward:300,
+   steps:['הגיעו לרחובות ל-19:00.','לחצו על "נווטו ב-Waze" כדי לנסוע ישר למסעדה.','שבים, אוכלים ומספרים מי היה הגיבור של החדר.'],
+   waze:'https://waze.com/ul?q=' + encodeURIComponent('Moo ve Moo Rehovot') + '&navigate=yes'}
+];
+
+var done = {};
+try { done = JSON.parse(localStorage.getItem('ow-done') || '{}') || {}; } catch(e) { done = {}; }
+function save(){ try { localStorage.setItem('ow-done', JSON.stringify(done)); } catch(e) {} }
+function $(s){ return document.querySelector(s); }
+function el(tag, cls, html){ var e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; }
+var GEM = '<svg class="gem"><use href="#gem"/></svg>';
+
+function card(s){
+  var mini = s.group === 'warm';
+  var b = el('button', 'card ' + (mini ? 'mini' : 'big'));
+  b.type = 'button';
+  var pillL = s.time ? '<span class="pill l">'+s.time+'</span>' : '<span class="pill l">תחנה '+s.id+'</span>';
+  var pillR = done[s.id] ? '<span class="pill r done">✓ הגעתם</span>' : '';
+  var art = '<div class="art">'+pillL+pillR+SCENES[s.scene]()+'</div>';
+  var rw = '<div class="rw"><small>פרס עד</small><b>'+GEM+' '+s.reward+'</b></div>';
+  var tile = '<div class="tile" style="background:'+s.tileBg+'"><svg aria-hidden="true"><use href="#'+s.icon+'"/></svg></div>';
+  b.innerHTML = art + (mini
+    ? '<div class="gbar"><div class="ti">'+s.title+'</div><div class="su">'+s.sub+'</div>'+rw+'</div>'
+    : '<div class="gbar">'+tile+'<div class="tx"><div class="ti">'+s.title+'</div><div class="su">'+s.sub+'</div></div>'+rw+'</div>');
+  b.addEventListener('click', function(){ openSheet(s.id); });
+  return b;
+}
+
+function render(){
+  $('#warm').innerHTML=''; $('#main').innerHTML='';
+  STOPS.forEach(function(s){ (s.group==='warm' ? $('#warm') : $('#main')).appendChild(card(s)); });
+  var n = 0, bal = 0;
+  STOPS.forEach(function(s){ if(done[s.id]){ n++; bal += s.reward; } });
+  $('#count').textContent = n + ' מתוך ' + STOPS.length;
+  $('#bal').textContent = bal;
+  var bars = document.querySelectorAll('#bar i');
+  STOPS.forEach(function(s,i){ bars[i].className = done[s.id] ? 'on' : ''; });
+}
+
+$('#hero').insertAdjacentHTML('afterbegin', sceneHero());
+
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(x){ x.setAttribute('aria-selected', x===t ? 'true':'false'); });
+    var f = t.getAttribute('data-f');
+    $('#shelf-warm').hidden = (f==='main');
+    $('#shelf-main').hidden = (f==='warm');
+  });
+});
+
+var opener = null;
+function openSheet(id){
+  var s = STOPS.filter(function(x){ return x.id===id; })[0];
+  opener = document.activeElement;
+  $('#s-art').innerHTML = SCENES[s.scene]();
+  $('#s-title').textContent = s.title;
+  $('#s-lead').textContent = s.lead;
+  $('#s-meta').innerHTML = '<span class="chip">תחנה '+s.id+' מתוך '+STOPS.length+'</span>' + (s.time ? '<span class="chip time">'+s.time+'</span>' : '') + '<span class="chip">'+s.place+'</span>';
+  $('#s-reward').innerHTML = GEM + ' פרס הגעה: ' + s.reward + ' גמים';
+  $('#s-steps').innerHTML = s.steps.map(function(t){ return '<li>'+t+'</li>'; }).join('');
+  buildCta(s);
+  var sh = $('#sheet'); sh.classList.add('open'); sh.setAttribute('aria-hidden','false'); sh.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+  setTimeout(function(){ $('#back').focus(); }, 50);
+}
+function buildCta(s){
+  var c = $('#s-cta'); c.innerHTML = '';
+  if(s.waze){
+    var a = el('a','btn waze','<span aria-hidden="true">📍</span> נווטו ב-Waze');
+    a.href = s.waze; a.target = '_blank'; a.rel = 'noopener';
+    c.appendChild(a);
+  }
+  var ok = el('button', 'btn ' + (s.waze ? 'ok' : 'main-ok'));
+  ok.type = 'button';
+  function paint(){ ok.setAttribute('aria-pressed', done[s.id] ? 'true':'false'); ok.textContent = done[s.id] ? '✓ הגעתם לתחנה' : 'הגעתי לתחנה'; }
+  paint();
+  ok.addEventListener('click', function(){ if(done[s.id]) delete done[s.id]; else done[s.id] = true; save(); paint(); render(); });
+  c.appendChild(ok);
+}
+function closeSheet(){
+  var sh = $('#sheet'); sh.classList.remove('open'); sh.setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+  if(opener && opener.focus) opener.focus();
+}
+$('#back').addEventListener('click', closeSheet);
+document.addEventListener('keydown', function(e){ if(e.key==='Escape' && $('#sheet').classList.contains('open')) closeSheet(); });
+render();
+</script>
+
+</body>
+</html>
