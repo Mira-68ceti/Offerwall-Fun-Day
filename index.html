@@ -167,6 +167,30 @@ a{color:inherit;text-decoration:none}
 .g-big{font-size:76px;font-weight:900;line-height:1;color:#FFD23F;font-variant-numeric:tabular-nums}
 .g-title{font-size:28px;font-weight:900;line-height:1.15}
 .g-res p{margin:0;color:var(--muted);font-size:16px}
+.g-intro{display:grid;gap:12px}
+.g-lab{font-weight:700;font-size:14px;color:#FFD23F}
+.g-input{width:100%;height:54px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:20px;font-weight:700;padding-inline:16px}
+.g-input:focus{outline:none;border-color:#FFD23F}
+.g-err{min-height:20px;color:var(--coral);font-size:14px;font-weight:600}
+.g-muted{margin:0;color:var(--muted);font-size:14px}
+.g-h3{margin:14px 0 4px;font-size:14px;letter-spacing:.08em;color:#FFD23F;font-weight:800}
+.g-name{font-size:20px;font-weight:800;color:var(--ink)}
+.g-opt.pick{border-color:#FFD23F;background:#3A3210}
+.g-prog i.fun{background:#33CCFF}
+.g-note.fun{background:#103A52;color:#CFF1FF;font-weight:700;font-size:17px}
+.board{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.board li{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.board li .rk{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:14px;background:var(--line);font-variant-numeric:tabular-nums}
+.board li:nth-child(1) .rk{background:#FFD23F;color:#2B2100}
+.board li:nth-child(2) .rk{background:#D5DCEB;color:#1B2440}
+.board li:nth-child(3) .rk{background:#E0A066;color:#2B1500}
+.board li .nm{font-weight:700;font-size:17px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.board li .sc{font-weight:900;font-size:18px;font-variant-numeric:tabular-nums}
+.board li.me{border-color:var(--lime);box-shadow:inset 0 0 0 1px var(--lime)}
+.board-wrap{padding:6px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px))}
+.board-h{display:flex;justify-content:space-between;align-items:center;margin:26px 0 10px;padding-inline:max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-left, 0px));font-size:20px;font-weight:800}
+.board-h button{font-size:13px;font-weight:700;color:var(--muted);padding:6px 12px;border-radius:99px;border:1px solid var(--line)}
+.g-muted.lock{padding:14px 16px;border:1px dashed var(--line);border-radius:14px;text-align:center}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -227,6 +251,8 @@ a{color:inherit;text-decoration:none}
       <div><h2>משחקים</h2><p>רוצים להוכיח מי הכי חכם בצוות?</p></div>
     </div>
     <div class="grid1" id="game-card"></div>
+    <h3 class="board-h"><span>טבלת מובילים</span><button id="board-refresh" type="button">רענון</button></h3>
+    <div class="board-wrap" id="board"></div>
   </section>
 
   <p class="foot">לחצו על תחנה כדי לראות הוראות והגעה</p>
@@ -498,11 +524,20 @@ function sceneQuiz(){
    confetti([[100,18,8,'#FFD23F',20],[200,20,8,'#C6F432',-25],[270,28,7,'#fff',30],[14,20,7,'#33CCFF',15]]));
 }
 
-/* The first answer of each question is the correct one; answers are shuffled when the game starts. Edit or add questions here. */
+/* Shared leaderboard: paste the Google Apps Script web app URL between the quotes. Empty = scores stay on this device only. */
+var SCORE_URL = '';
+
+/* Questions. Scored question: the FIRST answer is the correct one (answers are shuffled when the game starts).
+   Fun question (fun:true): no right or wrong, each answer has its own reply (r) and the order stays as written. */
 var QUIZ = [
   {q:'מה זה CPM?', o:['עלות לאלף חשיפות','עלות לקליק מצטבר','עלות למוצר שנמכר','עלות להתקנה מרובה'], n:'האות M מגיעה מ-Mille, "אלף" בלטינית.'},
   {q:'מה זה CPI?', o:['עלות להתקנה','עלות לחשיפה','עלות לאינטראקציה','עלות לפרסומת'], n:'משלמים על כל התקנה של האפליקציה.'},
   {q:'מה ROAS מודד?', o:['החזר על הוצאות פרסום','שיעור שימור משתמשים','מספר צפיות בסרטון','מהירות טעינת מודעה'], n:'כמה הכנסה חוזרת על כל שקל שהושקע בפרסום.'},
+  {q:'ששירי אומרת לך "סתום" יותר מפעם אחת, מה זה אומר?', fun:true, o:[
+    {t:'היא מתה עליך', r:'שירי מהאופרוול, כן?'},
+    {t:'היא סתם כועסת וזה לא קשור אליך', r:'שירי מהאופרוול, כן?'},
+    {t:'תברח', r:'ואל תעצור.'},
+    {t:'היא אף פעם לא קראה לי סתום', r:'שירי מהאופרוול, כן?'}]},
   {q:'מה זה ARPU?', o:['הכנסה ממוצעת למשתמש','מספר משתמשים פעילים','עלות רכישת משתמש','אחוז הקלקות על מודעה'], n:'מחלקים את ההכנסה במספר המשתמשים.'},
   {q:'מה קורה ב-Offerwall?', o:['משתמשים מקבלים תגמול על ביצוע משימות באפליקציות','מוצג באנר קבוע בתחתית המסך','מוכרים נתוני משתמשים','מריצים סרטון בלי אפשרות לדלג'], n:'זה בדיוק מה שאתם עושים כל יום.'},
   {q:'מה זה Rewarded Video?', o:['סרטון שהמשתמש בוחר לראות בתמורה לתגמול','סרטון שמתחיל לבד בכניסה לאפליקציה','קליפ של שחקן מפורסם','סרטון הדרכה למפרסמים'], n:'המשתמש בוחר, ולכן הוא גם מרוצה.'},
@@ -510,30 +545,115 @@ var QUIZ = [
   {q:'באיזו עיר אוכלים ב-Moo ve Moo?', o:['רחובות','ראשון לציון','נתניה','באר שבע'], n:'ב-19:00 השולחן מחכה.'}
 ];
 function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
-var G = {i:0, score:0, marks:[], qs:[], locked:false};
-function gStart(){
-  G = {i:0, score:0, marks:[], locked:false,
-    qs: QUIZ.map(function(q){ return {q:q.q, n:q.n, o:shuffle(q.o.map(function(t,k){ return {t:t, ok:k===0}; }))}; })};
-  gRender();
+
+/* ----- name + leaderboard storage ----- */
+function getName(){ try { return localStorage.getItem('ow-name') || ''; } catch(e){ return ''; } }
+function setName(v){ try { localStorage.setItem('ow-name', v); } catch(e){} }
+function localBoard(){ try { return JSON.parse(localStorage.getItem('ow-board') || '[]'); } catch(e){ return []; } }
+function getPlayed(){ try { return JSON.parse(localStorage.getItem('ow-played') || 'null'); } catch(e){ return null; } }
+function setPlayed(o){ try { localStorage.setItem('ow-played', JSON.stringify(o)); } catch(e){} }
+function addLocal(name, score, total){
+  /* only the first score per name is kept */
+  var l = localBoard(), k = name.toLowerCase(), f = l.filter(function(x){ return String(x.name).toLowerCase()===k; })[0];
+  if(!f) l.push({name:name, score:score, total:total, t:Date.now()});
+  l.sort(function(a,b){ return b.score - a.score || a.t - b.t; });
+  try { localStorage.setItem('ow-board', JSON.stringify(l)); } catch(e){}
+}
+function fetchBoard(){
+  if(!SCORE_URL) return Promise.resolve(localBoard());
+  return fetch(SCORE_URL + (SCORE_URL.indexOf('?')<0 ? '?' : '&') + 't=' + Date.now()).then(function(r){ return r.json(); });
+}
+function nameTaken(name){
+  return fetchBoard().then(function(list){ var k = name.toLowerCase(); return (list || []).some(function(x){ return String(x.name).toLowerCase()===k; }); }).catch(function(){ return false; });
+}
+function submitScore(name, score, total){
+  if(!SCORE_URL){ addLocal(name, score, total); return Promise.resolve(); }
+  return fetch(SCORE_URL, {method:'POST', mode:'no-cors', body:JSON.stringify({name:name, score:score, total:total})}).catch(function(){});
+}
+function boardEl(list, me, limit){
+  var wrap = el('div','board-box');
+  if(!list || !list.length){ wrap.appendChild(el('p','g-muted','עוד אין תוצאות. תהיו הראשונים!')); return wrap; }
+  var ol = el('ol','board');
+  list.slice(0, limit || 50).forEach(function(x, i){
+    var li = el('li', me && String(x.name).toLowerCase()===me.toLowerCase() ? 'me' : '');
+    var rk = el('span','rk'); rk.textContent = i+1;
+    var nm = el('span','nm'); nm.textContent = x.name;
+    var sc = el('span','sc'); sc.textContent = Number(x.score) + '/' + Number(x.total);
+    li.appendChild(rk); li.appendChild(nm); li.appendChild(sc); ol.appendChild(li);
+  });
+  wrap.appendChild(ol);
+  return wrap;
+}
+function showBoard(target, me, limit){
+  if(!target) return;
+  target.innerHTML = '<p class="g-muted">טוען טבלה…</p>';
+  fetchBoard().then(function(list){
+    target.innerHTML = '';
+    target.appendChild(boardEl(list, me, limit));
+    if(!SCORE_URL) target.appendChild(el('p','g-muted','הטבלה שמורה כרגע רק במכשיר הזה.'));
+  }).catch(function(){ target.innerHTML = '<p class="g-muted">לא הצלחנו לטעון את הטבלה. נסו שוב בעוד רגע.</p>'; });
+}
+
+/* ----- game flow ----- */
+var G = {done:false, stage:'intro', i:0, score:0, total:0, marks:[], qs:[], locked:false, name:'', submitted:false};
+function gBuild(){
+  G.qs = QUIZ.map(function(q){
+    if(q.fun) return {q:q.q, fun:true, o:q.o.map(function(x){ return {t:x.t, r:x.r}; })};
+    return {q:q.q, n:q.n, o:shuffle(q.o.map(function(t,k){ return {t:t, ok:k===0}; }))};
+  });
+  G.total = G.qs.filter(function(q){ return !q.fun; }).length;
+  G.i = 0; G.score = 0; G.marks = []; G.locked = false; G.submitted = false; G.done = false;
 }
 function gProg(){
-  return '<div class="g-prog">' + G.qs.map(function(_,k){ return '<i class="'+(G.marks[k]===1?'ok':G.marks[k]===0?'no':k===G.i?'cur':'')+'"></i>'; }).join('') + '</div>';
+  return '<div class="g-prog">' + G.qs.map(function(_,k){
+    var m = G.marks[k]; var c = m===1 ? 'ok' : m===0 ? 'no' : m===2 ? 'fun' : (k===G.i && G.stage==='q') ? 'cur' : '';
+    return '<i class="'+c+'"></i>'; }).join('') + '</div>';
 }
 function gRender(){
-  var w = $('#g-wrap'), n = G.qs.length;
-  if(G.i >= n){
-    var r = G.score / n;
-    var t = r>=.875 ? 'אגדת Offerwall' : r>=.625 ? 'מקצוען אמיתי' : r>=.375 ? 'מתחיל מבטיח' : 'צריך עוד קפה';
-    var m = r>=.875 ? 'כמעט בלי טעויות. מגיע לכם כבוד.' : r>=.625 ? 'ידע מרשים. הקפה והארוחה על חשבון הכבוד.' : r>=.375 ? 'לא רע בכלל. יש עוד מקום לצמוח.' : 'לא נורא, החידות בחדר הבריחה יעזרו.';
-    w.innerHTML = '<div class="g-res"><div class="g-big">'+G.score+'/'+n+'</div><div class="g-title">'+t+'</div><p>'+m+'</p>'+ gProg() +
-      '<div style="width:100%;display:grid;gap:10px;margin-top:10px"><button class="btn main-ok" id="g-again" type="button">שחקו שוב</button><button class="btn ok" id="g-home" type="button">חזרה ל-Offerwall</button></div></div>';
-    $('#g-again').addEventListener('click', gStart);
-    $('#g-home').addEventListener('click', closeGame);
+  var w = $('#g-wrap');
+  if(G.stage === 'intro'){
+    w.innerHTML = '<div class="g-intro"><div class="g-title">טריוויה צוותית</div><p class="g-muted">כתבו את השם שלכם כדי לשמור ניקוד. אפשר לשחק פעם אחת בלבד, והציון הראשון הוא הקובע. טבלת המובילים תיפתח לכם בסוף המשחק.</p>' +
+      '<label class="g-lab" for="g-name">השם שלכם</label><input id="g-name" class="g-input" type="text" maxlength="20" autocomplete="off" placeholder="למשל: רוהי">' +
+      '<div class="g-err" id="g-err" role="alert"></div><button class="btn main-ok" id="g-go" type="button">יאללה, מתחילים</button></div>';
+    var inp = $('#g-name'); inp.value = getName();
+    function go(){
+      var v = inp.value.replace(/\s+/g,' ').trim();
+      if(v.length < 2){ $('#g-err').textContent = 'כתבו שם של לפחות 2 תווים.'; inp.focus(); return; }
+      var btn = $('#g-go'); btn.disabled = true; $('#g-err').textContent = '';
+      nameTaken(v).then(function(taken){
+        if(taken){ btn.disabled = false; $('#g-err').textContent = 'השם הזה כבר שיחק. הוסיפו אות או כינוי כדי להבדיל.'; inp.focus(); return; }
+        G.name = v; setName(v); gBuild(); G.stage = 'q'; gRender(); $('#game').scrollTop = 0;
+      });
+    }
+    $('#g-go').addEventListener('click', go);
+    inp.addEventListener('keydown', function(e){ if(e.key === 'Enter') go(); });
     return;
   }
-  var q = G.qs[G.i];
-  w.innerHTML = '<div class="g-top"><span>שאלה '+(G.i+1)+' מתוך '+n+'</span><span class="g-score">ניקוד: '+G.score+'</span></div>' + gProg() +
+  if(G.stage === 'res'){
+    var r = G.total ? G.score / G.total : 0;
+    var t = r>=.875 ? 'אגדת Offerwall' : r>=.625 ? 'מקצוען אמיתי' : r>=.375 ? 'מתחיל מבטיח' : 'צריך עוד קפה';
+    var m = r>=.875 ? 'כמעט בלי טעויות. מגיע לכם כבוד.' : r>=.625 ? 'ידע מרשים. הקפה והארוחה על חשבון הכבוד.' : r>=.375 ? 'לא רע בכלל. יש עוד מקום לצמוח.' : 'לא נורא, החידות בחדר הבריחה יעזרו.';
+    w.innerHTML = '<div class="g-res"><div class="g-name"></div><div class="g-big">'+G.score+'/'+G.total+'</div><div class="g-title">'+t+'</div><p>'+(G.done ? 'כבר שיחקתם. הציון הראשון הוא הקובע.' : m)+'</p>'+ gProg() +
+      '<div style="width:100%;display:grid;gap:10px;margin-top:6px"><button class="btn main-ok" id="g-home" type="button">חזרה ל-Offerwall</button></div>' +
+      '<h3 class="g-h3" style="justify-self:start">טבלת מובילים</h3><div id="g-board" style="width:100%;text-align:start"></div></div>';
+    $('.g-name').textContent = G.name;
+    $('#g-home').addEventListener('click', closeGame);
+    var target = $('#g-board');
+    if(G.done){ showBoard(target, G.name, 50); return; }
+    target.innerHTML = '<p class="g-muted">שומר את התוצאה…</p>';
+    if(!G.submitted){
+      G.submitted = true;
+      setPlayed({name:G.name, score:G.score, total:G.total});
+      submitScore(G.name, G.score, G.total).then(function(){
+        showBoard($('#g-board'), G.name, 50); refreshMainBoard();
+      });
+    }
+    return;
+  }
+  var q = G.qs[G.i], n = G.qs.length;
+  w.innerHTML = '<div class="g-top"><span>שאלה '+(G.i+1)+' מתוך '+n+'</span><span class="g-score">'+'<span class="g-who"></span> · ניקוד: '+G.score+'</span></div>' + gProg() +
     '<h2 class="g-q" id="g-q"></h2><div class="g-ans" id="g-ans"></div><div id="g-fb"></div>';
+  $('.g-who').textContent = G.name;
   $('#g-q').textContent = q.q;
   q.o.forEach(function(o){
     var b = el('button','g-opt'); b.type='button'; b.textContent = o.t;
@@ -545,22 +665,32 @@ function gRender(){
 function gAnswer(o, btn){
   if(G.locked) return; G.locked = true;
   var q = G.qs[G.i];
-  G.marks[G.i] = o.ok ? 1 : 0; if(o.ok) G.score++;
   var btns = document.querySelectorAll('#g-ans .g-opt');
-  q.o.forEach(function(x,k){ btns[k].disabled = true; if(x.ok) btns[k].classList.add('right'); });
-  if(!o.ok) btn.classList.add('wrong');
+  var note;
+  btns.forEach(function(b){ b.disabled = true; });
+  if(q.fun){
+    G.marks[G.i] = 2; btn.classList.add('pick'); note = o.r;
+  } else {
+    G.marks[G.i] = o.ok ? 1 : 0; if(o.ok) G.score++;
+    q.o.forEach(function(x,k){ if(x.ok) btns[k].classList.add('right'); });
+    if(!o.ok) btn.classList.add('wrong');
+    note = (o.ok ? 'נכון! ' : 'כמעט. ') + q.n;
+  }
   var last = G.i === G.qs.length-1;
   var fb = $('#g-fb');
-  fb.innerHTML = '<div class="g-note"></div>';
-  fb.firstChild.textContent = (o.ok ? 'נכון! ' : 'כמעט. ') + q.n;
+  fb.innerHTML = '<div class="g-note'+(q.fun?' fun':'')+'"></div>';
+  fb.firstChild.textContent = note;
   var nx = el('button','btn main-ok'); nx.type='button'; nx.style.marginTop='12px'; nx.textContent = last ? 'לתוצאה' : 'השאלה הבאה';
-  nx.addEventListener('click', function(){ G.i++; gRender(); $('#game').scrollTop = 0; });
+  nx.addEventListener('click', function(){ G.i++; if(G.i >= G.qs.length) G.stage = 'res'; gRender(); $('#game').scrollTop = 0; });
   fb.appendChild(nx);
   nx.focus();
 }
 function openGame(){
   opener = document.activeElement;
-  gStart();
+  var pl = getPlayed();
+  if(pl){ G.done = true; G.name = pl.name; G.score = pl.score; G.total = pl.total; G.qs = []; G.marks = []; G.stage = 'res'; }
+  else { G.done = false; G.stage = 'intro'; }
+  gRender();
   var g = $('#game'); g.classList.add('open'); g.setAttribute('aria-hidden','false'); g.scrollTop = 0;
   document.body.style.overflow = 'hidden';
   setTimeout(function(){ $('#g-back').focus(); }, 50);
@@ -571,6 +701,13 @@ function closeGame(){
   if(opener && opener.focus) opener.focus();
 }
 $('#g-back').addEventListener('click', closeGame);
+function refreshMainBoard(){
+  var t = $('#board'), p = getPlayed();
+  if(!p){ t.innerHTML = '<p class="g-muted lock">הטבלה תיפתח אחרי שתשחקו בטריוויה. 🔒</p>'; return; }
+  showBoard(t, p.name, 10);
+}
+refreshMainBoard();
+$('#board-refresh').addEventListener('click', refreshMainBoard);
 
 (function(){
   var b = el('button','card big'); b.type = 'button';
