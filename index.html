@@ -141,6 +141,7 @@ a{color:inherit;text-decoration:none}
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;border-radius:18px;font-weight:800;font-size:18px;width:100%}
 .btn.waze{background:var(--waze);color:#06223B;box-shadow:0 6px 0 #1596BE}
 .btn.waze:active{transform:translateY(3px);box-shadow:0 3px 0 #1596BE}
+.btn.waze2{background:transparent;border:2px solid var(--waze);color:var(--waze);height:50px;font-size:16px}
 .btn.ok{background:var(--surface);border:2px solid var(--line);color:var(--ink);height:50px;font-size:16px}
 .btn.ok[aria-pressed="true"]{background:var(--lime);color:#12210A;border-color:var(--lime)}
 .btn.main-ok{background:var(--lime);color:#12210A;box-shadow:0 6px 0 #8FB31B}
@@ -203,6 +204,7 @@ a{color:inherit;text-decoration:none}
     <symbol id="ic-cup" viewBox="0 0 24 24"><path d="M3 9h13v5a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5zM16 10h2a3 3 0 0 1 0 6h-2v-2h2a1 1 0 0 0 0-2h-2z"/><path d="M7 2c0 2-2 2-2 4M11 2c0 2-2 2-2 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round" fill="none"/></symbol>
     <symbol id="ic-lock" viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1zm2 0h6V7a3 3 0 0 0-6 0z"/></symbol>
     <symbol id="ic-burger" viewBox="0 0 24 24"><path d="M4 11a8 6 0 0 1 16 0zM3 13h18v2H3zM5 17h14v1a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="ic-sub" viewBox="0 0 24 24"><path d="M3 14a6 5 0 0 1 6-5h8a5 5 0 0 1 5 5 5 4 0 0 1-5 4H8a5 4 0 0 1-5-4zM10 9V6h4v3h-4zM11 6V3h5v2h-3v1z"/><circle cx="9" cy="14" r="1.6" fill="#0E1730"/><circle cx="14" cy="14" r="1.6" fill="#0E1730"/></symbol>
     <symbol id="ic-quiz" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 16h-2v-2h2zm2.1-7.7-.9.9c-.7.7-1.2 1.3-1.2 2.8h-2v-.5c0-1.1.5-2.1 1.2-2.8l1.2-1.3c.4-.3.6-.8.6-1.4a2 2 0 0 0-4 0H8a4 4 0 0 1 8 0c0 .9-.4 1.7-.9 2.3z"/></symbol>
   </defs>
 </svg>
@@ -380,6 +382,38 @@ function sceneEscape(){
    sparkle(72,112,.9,'#C6F432') + sparkle(232,120,.8,'#fff') + sparkle(100,20,.7,'#FFE27A'));
 }
 
+function sceneSub(){
+  var u = ++uid, bub = '';
+  [[40,120,5],[52,96,3],[46,70,4],[250,128,6],[262,98,3.5],[236,66,4],[200,40,3],[96,34,3]].forEach(function(b){ bub += '<circle cx="'+b[0]+'" cy="'+b[1]+'" r="'+b[2]+'" fill="none" stroke="#fff" stroke-width="1.6" opacity=".7"/>'; });
+  return svgWrap('0 0 300 170',
+   '<defs><linearGradient id="w'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1FB6C9"/><stop offset=".55" stop-color="#0E5E9E"/><stop offset="1" stop-color="#081B4B"/></linearGradient>' +
+   '<linearGradient id="y'+u+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE27A"/><stop offset="1" stop-color="#F2A60C"/></linearGradient>' +
+   '<radialGradient id="l'+u+'"><stop offset="0" stop-color="#FFF6B0" stop-opacity=".9"/><stop offset="1" stop-color="#FFF6B0" stop-opacity="0"/></radialGradient></defs>' +
+   '<rect width="300" height="170" fill="url(#w'+u+')"/>' +
+   '<g fill="#fff" opacity=".10"><path d="M60 0L110 0 160 170 30 170z"/><path d="M190 0L220 0 290 170 210 170z"/></g>' + bub +
+   '<path d="M0 170V150Q30 128 44 150T72 144V170Z" fill="#0A7A5B"/><path d="M250 170V140Q268 120 280 142T300 136V170Z" fill="#0A7A5B"/>' +
+   '<path d="M22 170Q16 150 26 138M34 170Q40 152 32 134" stroke="#27C98B" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+   '<ellipse cx="150" cy="168" rx="120" ry="9" fill="#04102E" opacity=".45"/>' +
+   /* beam from the bow light */
+   '<path d="M62 92L0 66V126Z" fill="url(#l'+u+')" opacity=".55"/>' +
+   /* submarine */
+   '<g transform="translate(0 4)">' +
+   '<path d="M214 88l22-12v48l-22-12z" fill="#D68A00"/><path d="M226 82a14 14 0 1 1 0 0z" fill="none"/><ellipse cx="236" cy="100" rx="5" ry="26" fill="#D68A00"/>' +
+   '<rect x="132" y="34" width="34" height="28" rx="8" fill="url(#y'+u+')" stroke="#B87400" stroke-width="2"/>' +
+   '<path d="M158 34V20h26" stroke="#B87400" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="180" y="16" width="8" height="8" rx="2" fill="#B87400"/>' +
+   '<ellipse cx="146" cy="100" rx="86" ry="40" fill="url(#y'+u+')" stroke="#B87400" stroke-width="3"/>' +
+   '<path d="M70 92Q146 70 222 92" stroke="#fff" stroke-width="4" fill="none" opacity=".35" stroke-linecap="round"/>' +
+   '<circle cx="106" cy="100" r="13" fill="#0B2A63" stroke="#B87400" stroke-width="4"/><circle cx="106" cy="100" r="8" fill="#5AD8FF"/><circle cx="103" cy="97" r="2.6" fill="#fff"/>' +
+   '<circle cx="146" cy="100" r="13" fill="#0B2A63" stroke="#B87400" stroke-width="4"/><circle cx="146" cy="100" r="8" fill="#5AD8FF"/><circle cx="143" cy="97" r="2.6" fill="#fff"/>' +
+   '<circle cx="186" cy="100" r="13" fill="#0B2A63" stroke="#B87400" stroke-width="4"/><circle cx="186" cy="100" r="8" fill="#5AD8FF"/><circle cx="183" cy="97" r="2.6" fill="#fff"/>' +
+   '<g fill="#B87400"><circle cx="86" cy="124" r="2"/><circle cx="116" cy="130" r="2"/><circle cx="146" cy="132" r="2"/><circle cx="176" cy="130" r="2"/><circle cx="206" cy="124" r="2"/></g>' +
+   '<circle cx="64" cy="98" r="7" fill="#FFF6B0"/>' +
+   '</g>' +
+   '<g transform="translate(28 22)"><ellipse cx="0" cy="0" rx="12" ry="7" fill="#FF8A5B"/><path d="M10 0l10-7v14z" fill="#FF8A5B"/><circle cx="-6" cy="-1.5" r="1.8" fill="#222"/></g>' +
+   '<g transform="translate(262 30) scale(-1 1)"><ellipse cx="0" cy="0" rx="10" ry="6" fill="#C6F432"/><path d="M9 0l9-6v12z" fill="#C6F432"/><circle cx="-5" cy="-1.5" r="1.6" fill="#222"/></g>' +
+   sparkle(110,28,.8,'#fff') + sparkle(280,150,.7,'#fff'));
+}
+
 function sceneDinner(){
   var u = ++uid;
   return svgWrap('0 0 300 170',
@@ -404,24 +438,27 @@ function sceneDinner(){
    sparkle(160,40,.9,'#fff') + sparkle(280,50,.7,'#FFE27A') + sparkle(24,120,.7,'#fff') + confetti([[150,150,7,'#C6F432',20],[20,40,8,'#FFD23F',-20]]));
 }
 
-var SCENES = {office:sceneOffice, coffee:sceneCoffee, escape:sceneEscape, dinner:sceneDinner};
+var SCENES = {office:sceneOffice, coffee:sceneCoffee, escape:sceneSub, dinner:sceneDinner};
 
 /* ---------- Content: edit this list to change the day's details ---------- */
+function wz(q){ return 'https://waze.com/ul?q=' + encodeURIComponent(q) + '&navigate=yes'; }
 var STOPS = [
   {id:1, group:'warm', scene:'office', icon:'ic-office', tileBg:'linear-gradient(150deg,#4C6BFF,#1D2F9C)', title:'נפגשים במשרד', sub:'נקודת הפתיחה', lead:'כולם יחד, ומשם יוצאים להרפתקה.',
-   time:'', place:'המשרד', reward:50,
-   steps:['הגיעו למשרד בזמן ופגשו את שאר הצוות.','ודאו שאתם יודעים עם מי נוסעים לראשון לציון.','כשכולם כאן, ממשיכים לתחנה הבאה.'], waze:''},
-  {id:2, group:'warm', scene:'coffee', icon:'ic-cup', tileBg:'linear-gradient(150deg,#D4772F,#6A3112)', title:'קפה ונשנוש', sub:'מטענים אנרגיה', lead:'לפני שנכנסים לחדר, צריך להטעין סוללות.',
-   time:'', place:'לפני האתגר', reward:50,
-   steps:['קחו קפה ומשהו קטן לנשנש.','נצלו את הזמן להכיר את הצוות לפני החידות.','כשכולם מוכנים, ממשיכים לחדר.'], waze:''},
-  {id:3, group:'main', scene:'escape', icon:'ic-lock', tileBg:'linear-gradient(150deg,#8A4DFF,#2A1380)', title:'ההתערבות', sub:'ראשון לציון', lead:'הדלת נסגרת, השעון מתחיל לתקתק… תצליחו לצאת?',
-   time:'16:00', place:'ראשון לציון', reward:300,
-   steps:['הגיעו לראשון לציון לפני 16:00.','לחצו על "נווטו ב-Waze" כדי לנסוע ישר למקום.','בפנים עובדים כצוות ומשתפים כל רמז.','יצאתם בזמן? הארוחה כבר מחכה.'],
-   waze:'https://waze.com/ul?q=' + encodeURIComponent('ההתערבות ראשון לציון') + '&navigate=yes'},
+   pill:'יציאה 17:00–17:15', when:'יציאה 17:00–17:15', place:'המשרד', reward:50,
+   steps:['היו במשרד לפני 17:00, ויוצאים בין 17:00 ל-17:15.','ודאו שאתם יודעים עם מי נוסעים לראשון לציון.','כשכולם מוכנים, יוצאים לדרך.'],
+   navs:[{label:'נווטו למשרד ב-Waze', url:wz('דרך מנחם בגין 121 תל אביב')}]},
+  {id:2, group:'warm', scene:'coffee', icon:'ic-cup', tileBg:'linear-gradient(150deg,#D4772F,#6A3112)', title:'קפה ונשנוש', sub:'מטענים אנרגיה', lead:'לפני שיוצאים, צריך להטעין סוללות.',
+   pill:'לפני היציאה', when:'', place:'לפני היציאה', reward:50,
+   steps:['קחו קפה ומשהו קטן לנשנש.','נצלו את הזמן להכיר את הצוות לפני החידות.','כשכולם מוכנים, ממשיכים לדרך.'],
+   navs:[{label:'נווטו למשרד ב-Waze', url:wz('דרך מנחם בגין 121 תל אביב')}]},
+  {id:3, group:'main', scene:'escape', icon:'ic-sub', tileBg:'linear-gradient(150deg,#1FB6C9,#0B3A7A)', title:'ההתערבות', sub:'ראשון לציון', lead:'הצוללת צוללת, החמצן אוזל… תצליחו לעלות בזמן?',
+   time:'18:10', when:'18:10', meet:'להיות שם ב-18:00', place:'ראשון לציון', reward:300,
+   steps:['הגיעו לראשון לציון עד 18:00. החדר מתחיל ב-18:10.','חניה מומלצת: הרצל 185, ראשון לציון.','לחצו על כפתור ה-Waze כדי לנווט לחניה, או ישר לחדר.','בפנים עובדים כצוות ומשתפים כל רמז.'],
+   navs:[{label:'נווטו לחניה (הרצל 185) ב-Waze', url:wz('הרצל 185 ראשון לציון')},{label:'נווטו לחדר ב-Waze', url:wz('ההתערבות ראשון לציון')}]},
   {id:4, group:'main', scene:'dinner', icon:'ic-burger', tileBg:'linear-gradient(150deg,#FF6A4D,#8E1B4E)', title:'Moo ve Moo', sub:'רחובות', lead:'השולחן שלכם מחכה. אחרי כל החידות מגיע הזמן לאכול.',
-   time:'19:00', place:'רחובות', reward:300,
+   time:'19:00', when:'19:00', place:'רחובות', reward:300,
    steps:['הגיעו לרחובות ל-19:00.','לחצו על "נווטו ב-Waze" כדי לנסוע ישר למסעדה.','שבים, אוכלים ומספרים מי היה הגיבור של החדר.'],
-   waze:'https://waze.com/ul?q=' + encodeURIComponent('Moo ve Moo Rehovot') + '&navigate=yes'}
+   navs:[{label:'נווטו למסעדה ב-Waze', url:wz('Moo ve Moo Rehovot')}]}
 ];
 
 var done = {};
@@ -435,7 +472,7 @@ function card(s){
   var mini = s.group === 'warm';
   var b = el('button', 'card ' + (mini ? 'mini' : 'big'));
   b.type = 'button';
-  var pillL = s.time ? '<span class="pill l">'+s.time+'</span>' : '<span class="pill l">תחנה '+s.id+'</span>';
+  var pillL = '<span class="pill l">'+(s.pill || s.time || ('תחנה '+s.id))+'</span>';
   var pillR = done[s.id] ? '<span class="pill r done">✓ הגעתם</span>' : '';
   var art = '<div class="art">'+pillL+pillR+SCENES[s.scene]()+'</div>';
   var rw = '<div class="rw"><small>פרס עד</small><b>'+GEM+' '+s.reward+'</b></div>';
@@ -475,7 +512,7 @@ function openSheet(id){
   $('#s-art').innerHTML = SCENES[s.scene]();
   $('#s-title').textContent = s.title;
   $('#s-lead').textContent = s.lead;
-  $('#s-meta').innerHTML = '<span class="chip">תחנה '+s.id+' מתוך '+STOPS.length+'</span>' + (s.time ? '<span class="chip time">'+s.time+'</span>' : '') + '<span class="chip">'+s.place+'</span>';
+  $('#s-meta').innerHTML = '<span class="chip">תחנה '+s.id+' מתוך '+STOPS.length+'</span>' + (s.when ? '<span class="chip time">'+s.when+'</span>' : '') + (s.meet ? '<span class="chip time">'+s.meet+'</span>' : '') + '<span class="chip">'+s.place+'</span>';
   $('#s-reward').innerHTML = GEM + ' פרס הגעה: ' + s.reward + ' גמים';
   $('#s-steps').innerHTML = s.steps.map(function(t){ return '<li>'+t+'</li>'; }).join('');
   buildCta(s);
@@ -485,12 +522,12 @@ function openSheet(id){
 }
 function buildCta(s){
   var c = $('#s-cta'); c.innerHTML = '';
-  if(s.waze){
-    var a = el('a','btn waze','<span aria-hidden="true">📍</span> נווטו ב-Waze');
-    a.href = s.waze; a.target = '_blank'; a.rel = 'noopener';
+  (s.navs || []).forEach(function(n, i){
+    var a = el('a', 'btn ' + (i === 0 ? 'waze' : 'waze2'), '<span aria-hidden="true">📍</span> ' + n.label);
+    a.href = n.url; a.target = '_blank'; a.rel = 'noopener';
     c.appendChild(a);
-  }
-  var ok = el('button', 'btn ' + (s.waze ? 'ok' : 'main-ok'));
+  });
+  var ok = el('button', 'btn ok');
   ok.type = 'button';
   function paint(){ ok.setAttribute('aria-pressed', done[s.id] ? 'true':'false'); ok.textContent = done[s.id] ? '✓ הגעתם לתחנה' : 'הגעתי לתחנה'; }
   paint();
@@ -541,7 +578,7 @@ var QUIZ = [
   {q:'מה זה ARPU?', o:['הכנסה ממוצעת למשתמש','מספר משתמשים פעילים','עלות רכישת משתמש','אחוז הקלקות על מודעה'], n:'מחלקים את ההכנסה במספר המשתמשים.'},
   {q:'מה קורה ב-Offerwall?', o:['משתמשים מקבלים תגמול על ביצוע משימות באפליקציות','מוצג באנר קבוע בתחתית המסך','מוכרים נתוני משתמשים','מריצים סרטון בלי אפשרות לדלג'], n:'זה בדיוק מה שאתם עושים כל יום.'},
   {q:'מה זה Rewarded Video?', o:['סרטון שהמשתמש בוחר לראות בתמורה לתגמול','סרטון שמתחיל לבד בכניסה לאפליקציה','קליפ של שחקן מפורסם','סרטון הדרכה למפרסמים'], n:'המשתמש בוחר, ולכן הוא גם מרוצה.'},
-  {q:'באיזו עיר נמצא חדר הבריחה "ההתערבות"?', o:['ראשון לציון','רחובות','תל אביב','חיפה'], n:'נתראה שם ב-16:00.'},
+  {q:'באיזו עיר נמצא חדר הבריחה "ההתערבות"?', o:['ראשון לציון','רחובות','תל אביב','חיפה'], n:'נתראה שם. החדר מתחיל ב-18:10.'},
   {q:'באיזו עיר אוכלים ב-Moo ve Moo?', o:['רחובות','ראשון לציון','נתניה','באר שבע'], n:'ב-19:00 השולחן מחכה.'}
 ];
 function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
@@ -584,14 +621,14 @@ function boardEl(list, me, limit){
   wrap.appendChild(ol);
   return wrap;
 }
-function showBoard(target, me, limit){
+function showBoard(target, me, limit, silent){
   if(!target) return;
-  target.innerHTML = '<p class="g-muted">טוען טבלה…</p>';
+  if(!silent) target.innerHTML = '<p class="g-muted">טוען טבלה…</p>';
   fetchBoard().then(function(list){
     target.innerHTML = '';
     target.appendChild(boardEl(list, me, limit));
     if(!SCORE_URL) target.appendChild(el('p','g-muted','הטבלה שמורה כרגע רק במכשיר הזה.'));
-  }).catch(function(){ target.innerHTML = '<p class="g-muted">לא הצלחנו לטעון את הטבלה. נסו שוב בעוד רגע.</p>'; });
+  }).catch(function(){ if(!silent) target.innerHTML = '<p class="g-muted">לא הצלחנו לטעון את הטבלה. נסו שוב בעוד רגע.</p>'; });
 }
 
 /* ----- game flow ----- */
@@ -612,9 +649,10 @@ function gProg(){
 function gRender(){
   var w = $('#g-wrap');
   if(G.stage === 'intro'){
-    w.innerHTML = '<div class="g-intro"><div class="g-title">טריוויה צוותית</div><p class="g-muted">כתבו את השם שלכם כדי לשמור ניקוד. אפשר לשחק פעם אחת בלבד, והציון הראשון הוא הקובע. טבלת המובילים תיפתח לכם בסוף המשחק.</p>' +
+    w.innerHTML = '<div class="g-intro"><div class="g-title">טריוויה צוותית</div><p class="g-muted">כתבו את השם שלכם כדי לשמור ניקוד. אפשר לשחק פעם אחת בלבד, והציון הראשון הוא הקובע. הטבלה למטה מתעדכנת בזמן אמת.</p>' +
       '<label class="g-lab" for="g-name">השם שלכם</label><input id="g-name" class="g-input" type="text" maxlength="20" autocomplete="off" placeholder="למשל: רוהי">' +
-      '<div class="g-err" id="g-err" role="alert"></div><button class="btn main-ok" id="g-go" type="button">יאללה, מתחילים</button></div>';
+      '<div class="g-err" id="g-err" role="alert"></div><button class="btn main-ok" id="g-go" type="button">יאללה, מתחילים</button>' +
+      '<h3 class="g-h3">טבלת מובילים</h3><div id="g-board"></div></div>';
     var inp = $('#g-name'); inp.value = getName();
     function go(){
       var v = inp.value.replace(/\s+/g,' ').trim();
@@ -627,6 +665,7 @@ function gRender(){
     }
     $('#g-go').addEventListener('click', go);
     inp.addEventListener('keydown', function(e){ if(e.key === 'Enter') go(); });
+    showBoard($('#g-board'), getName(), 20);
     return;
   }
   if(G.stage === 'res'){
@@ -701,13 +740,20 @@ function closeGame(){
   if(opener && opener.focus) opener.focus();
 }
 $('#g-back').addEventListener('click', closeGame);
-function refreshMainBoard(){
-  var t = $('#board'), p = getPlayed();
-  if(!p){ t.innerHTML = '<p class="g-muted lock">הטבלה תיפתח אחרי שתשחקו בטריוויה. 🔒</p>'; return; }
-  showBoard(t, p.name, 10);
+function refreshMainBoard(silent){
+  var p = getPlayed();
+  showBoard($('#board'), p ? p.name : getName(), 20, silent === true);
 }
 refreshMainBoard();
-$('#board-refresh').addEventListener('click', refreshMainBoard);
+/* Live sync: re-read the shared table every 15 seconds while the page is visible. */
+setInterval(function(){
+  if(document.hidden) return;
+  refreshMainBoard(true);
+  var gb = $('#g-board');
+  if(gb && $('#game').classList.contains('open')) showBoard(gb, G.name || getName(), 50, true);
+}, 15000);
+document.addEventListener('visibilitychange', function(){ if(!document.hidden) refreshMainBoard(true); });
+$('#board-refresh').addEventListener('click', function(){ refreshMainBoard(false); });
 
 (function(){
   var b = el('button','card big'); b.type = 'button';
