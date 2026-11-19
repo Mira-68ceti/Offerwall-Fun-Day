@@ -206,6 +206,8 @@ a{color:inherit;text-decoration:none}
 .lockcard[hidden]{display:none}
 .lc-ic{font-size:40px;line-height:1}
 .lockcard h2{margin:0;font-size:22px;font-weight:900;line-height:1.2}
+.code-form{display:grid;gap:8px;width:100%;max-width:320px;margin-top:10px;text-align:start}
+.code-in{text-align:center;letter-spacing:.5em;font-size:24px}
 .lc-when{margin:0;font-size:26px;font-weight:900;color:#FFD23F}
 .rides{display:grid;gap:14px;padding-inline:max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-left, 0px))}
 .r-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;display:grid;gap:12px}
@@ -276,6 +278,14 @@ a{color:inherit;text-decoration:none}
     <h2>שאר ההפתעות נפתחות ב-14.12 בבוקר</h2>
     <p class="lc-when" id="lock-when"></p>
     <p class="g-muted">המסלול, המשחק, הפרסים וטבלת המובילים. בינתיים סגרו הסעה.</p>
+    <form class="code-form" id="code-form" autocomplete="off">
+      <label class="g-lab" for="code-in">יש לכם קוד?</label>
+      <div class="r-row">
+        <input id="code-in" class="g-input code-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••" aria-label="קוד פתיחה" dir="ltr">
+        <button class="btn main-ok" type="submit" style="width:auto;padding-inline:22px;height:54px">פתחו</button>
+      </div>
+      <div class="g-err" id="code-err" role="alert"></div>
+    </form>
   </section>
 
   <section class="progress gated" aria-label="התקדמות">
@@ -1035,7 +1045,16 @@ setInterval(function(){ if(!document.hidden && !rideBusy) loadRide(); }, 8000);
 
 /* ---------- Unlock: everything except the carpool opens on the morning of the event ---------- */
 var UNLOCK_AT = Date.UTC(2026, 11, 14, 4, 0, 0); /* 14.12.2026, 06:00 Israel time */
-function isUnlocked(){ return Date.now() >= UNLOCK_AT || location.hash === '#preview'; }
+var CODE_HASH = 3822770691609794; /* hash of the early-access code, not the code itself */
+function cyrb53(str, seed){ seed = seed || 0;
+  var h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+  for (var i = 0, ch; i < str.length; i++) { ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507); h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507); h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+}
+function codeOpened(){ try { return localStorage.getItem('ow-unlock') === String(CODE_HASH); } catch(e){ return false; } }
+function isUnlocked(){ return Date.now() >= UNLOCK_AT || codeOpened(); }
 function applyLock(){
   var u = isUnlocked();
   $('.app').classList.toggle('locked', !u);
@@ -1048,7 +1067,17 @@ function applyLock(){
 }
 applyLock();
 setInterval(applyLock, 60000);
-window.addEventListener('hashchange', applyLock);
+$('#code-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  var v = $('#code-in').value.trim();
+  if(cyrb53('ow-code:' + v) === CODE_HASH){
+    try { localStorage.setItem('ow-unlock', String(CODE_HASH)); } catch(err){}
+    $('#code-err').textContent = ''; applyLock(); window.scrollTo(0, 0);
+    if(!isUnlocked()) $('#code-err').textContent = 'לא הצלחנו לשמור את הפתיחה בדפדפן הזה. נסו דפדפן רגיל.';
+  } else {
+    $('#code-err').textContent = 'הקוד לא נכון.'; $('#code-in').select();
+  }
+});
 </script>
 
 </body>
