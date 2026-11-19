@@ -1,6 +1,6 @@
 // Carpool coordination for the Offerwall team day.
-// GET  /api/ride -> { people: { "<name>": {r:'driver',s:seats} | {r:'rider',c:'<driver>'} | {r:'own'} } }
-// POST /api/ride -> { action, name, param }  actions: driver | join | own | clear | kick
+// GET  /api/ride -> { people: { "<name>": {r:'driver',s:seats} | {r:'rider',c:'<driver>'} | {r:'need'} | {r:'own'} } }
+// POST /api/ride -> { action, name, param }  actions: driver | join | need | own | clear | kick
 
 // Finds the database settings whatever prefix was chosen when connecting it in Vercel.
 const findEnv = (suffix) => {
@@ -69,6 +69,11 @@ async function act(action, name, param) {
       if (myRiders.length > 0) return 'has_riders';
       if (ridersOf(m, param).length >= d.s) return 'full';
       await redis(['HSET', KEY, name, JSON.stringify({ r: 'rider', c: param })]);
+      return 'ok';
+    }
+    if (action === 'need') {
+      if (myRiders.length > 0) return 'has_riders';
+      await redis(['HSET', KEY, name, JSON.stringify({ r: 'need' })]);
       return 'ok';
     }
     if (action === 'own') {
