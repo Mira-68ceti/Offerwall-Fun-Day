@@ -148,6 +148,8 @@ a{color:inherit;text-decoration:none}
 .prize-list li{display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
 .prize-list .pi{font-size:24px;line-height:1;flex:none}
 .prize-list .pt{font-size:15px;font-weight:600}
+.btn.dim{opacity:.6;height:auto;min-height:50px;padding:6px 12px;flex-direction:column;gap:2px;cursor:default}
+.btn small.sub{display:block;font-size:12px;font-weight:600;color:#FFB3B6}
 .btn.waze2{background:transparent;border:2px solid var(--waze);color:var(--waze);height:50px;font-size:16px}
 .btn.ok{background:var(--surface);border:2px solid var(--line);color:var(--ink);height:50px;font-size:16px}
 .btn.ok[aria-pressed="true"]{background:var(--lime);color:#12210A;border-color:var(--lime)}
@@ -962,7 +964,16 @@ function renderRides(){
     if(!my){
       act.appendChild(h('p','g-muted','איך אתם מגיעים לראשון לציון?'));
       act.appendChild(btn('🚗 יש לי אוטו, אני נוהג/ת','main-ok',function(){ rideSeats = true; renderRides(); }));
-      act.appendChild(btn('🙋 מחפש/ת טרמפ','ok',function(){ rideScroll = true; rideAct('need'); }));
+      var hasDrivers = Object.keys(ride).some(function(n){ return ride[n].r === 'driver'; });
+      var nb = btn('🙋 מחפש/ת טרמפ','ok',function(){
+        if(!hasDrivers){ rideMsg('עוד אין נהגים שאישרו'); return; }
+        rideScroll = true; rideAct('need');
+      });
+      if(!hasDrivers){
+        nb.className += ' dim'; nb.setAttribute('aria-disabled','true'); nb.title = 'עוד אין נהגים שאישרו';
+        nb.appendChild(h('small','sub','עוד אין נהגים שאישרו'));
+      }
+      act.appendChild(nb);
       act.appendChild(btn('🚶 מגיע/ה בדרך אחרת','ok',function(){ rideAct('own'); }));
     } else if(my.r === 'driver'){
       var rs = ridersOf(me);
@@ -996,8 +1007,8 @@ function renderRides(){
   var cars = h('div','r-cars'); cars.id = 'r-cars';
   var drivers = Object.keys(ride).filter(function(n){ return ride[n].r === 'driver'; });
   drivers.sort(function(a,b){ return (ride[b].s - ridersOf(b).length) - (ride[a].s - ridersOf(a).length); });
-  cars.appendChild(h('h3','g-h3','האוטואים (' + drivers.length + ')'));
-  if(!drivers.length) cars.appendChild(h('p','g-muted','עוד אין אוטואים. מי נוהג ראשון?'));
+  cars.appendChild(h('h3','g-h3','הרכבים (' + drivers.length + ')'));
+  if(!drivers.length) cars.appendChild(h('p','g-muted','עוד אין רכבים. מי נוהג ראשון?'));
   drivers.forEach(function(d){
     var rs = ridersOf(d), cap = ride[d].s, left = cap - rs.length;
     var c = h('div','car' + (left <= 0 ? ' full' : ''));
