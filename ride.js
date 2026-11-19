@@ -1,8 +1,14 @@
 // Carpool coordination for the Offerwall team day.
 // GET  /api/ride -> { people: { "<name>": {r:'driver',s:seats} | {r:'rider',c:'<driver>'} | {r:'own'} } }
 // POST /api/ride -> { action, name, param }  actions: driver | join | own | clear | kick
-const BASE = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+// Finds the database settings whatever prefix was chosen when connecting it in Vercel.
+const findEnv = (suffix) => {
+  const k = Object.keys(process.env).find((n) => n.endsWith(suffix) && !n.includes('READ_ONLY'));
+  return k ? process.env[k] : undefined;
+};
+const BASE = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || findEnv('_REST_API_URL') || findEnv('_REST_URL');
+const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || findEnv('_REST_API_TOKEN') || findEnv('_REST_TOKEN');
 const KEY = 'ow:ride';
 const LOCK = 'ow:ride:lock';
 

@@ -1,8 +1,14 @@
 // Shared leaderboard for the Offerwall team day.
 // GET  /api/scores  -> list of everyone's score (best first)
 // POST /api/scores  -> saves {name, score, total}; only the FIRST score per name is kept
-const BASE = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+// Finds the database settings whatever prefix was chosen when connecting it in Vercel.
+const findEnv = (suffix) => {
+  const k = Object.keys(process.env).find((n) => n.endsWith(suffix) && !n.includes('READ_ONLY'));
+  return k ? process.env[k] : undefined;
+};
+const BASE = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || findEnv('_REST_API_URL') || findEnv('_REST_URL');
+const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || findEnv('_REST_API_TOKEN') || findEnv('_REST_TOKEN');
 const KEY = 'ow:scores';
 
 async function redis(command) {
