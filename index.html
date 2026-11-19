@@ -858,8 +858,8 @@ $('#prizes-box').appendChild(prizesEl());
 render();
 
 /* ---------- Carpool ---------- */
-/* TODO: replace with the real list of names. Anyone not on the list can still add their own name. */
-var ROSTER = ['רוהי','שירי','ערן','ויטאלי','ירדן','רועי','עמית'];
+/* Everyone who is invited. Anyone not on the list can still add their own name. */
+var ROSTER = ['ויטאלי','אקווה','ירדן','קטיה','שירי','מוטי','רועי','חיים','עדי','עמית','שחר','מאט'];
 var RIDE_URL = '/api/ride';
 var ride = {}, rideErr = '', rideOther = false, rideSeats = false, rideBusy = false;
 var RIDE_MSG = {full:'האוטו התמלא בינתיים. בחרו אוטו אחר.', has_riders:'יש לכם נוסעים. בטלו קודם את האוטו שלכם.', seats_low:'יש לכם כבר יותר נוסעים מהמקומות האלה.', no_car:'האוטו כבר לא זמין.', bad:'משהו השתבש, נסו שוב.'};
