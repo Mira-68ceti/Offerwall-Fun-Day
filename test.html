@@ -366,7 +366,7 @@ a{color:inherit;text-decoration:none}
 <script>
 /* TEST BUILD: browser storage is kept apart from the real page. */
 var LS = (function(){ var real = null, mem = {}; try { real = window.localStorage; real.getItem('x'); } catch(e){ real = null; }
-  return {getItem:function(k){ return real ? real.getItem('test:'+k) : (mem[k] == null ? null : mem[k]); }, setItem:function(k,v){ if(real) real.setItem('test:'+k, v); else mem[k] = String(v); }, removeItem:function(k){ if(real) real.removeItem('test:'+k); else delete mem[k]; }}; })();
+  return {getItem:function(k){ return real ? real.getItem('test2:'+k) : (mem[k] == null ? null : mem[k]); }, setItem:function(k,v){ if(real) real.setItem('test2:'+k, v); else mem[k] = String(v); }, removeItem:function(k){ if(real) real.removeItem('test2:'+k); else delete mem[k]; }}; })();
 /* ---------- Illustrations (original cartoon scenes) ---------- */
 var uid = 0;
 function svgWrap(vb, inner){ return '<svg viewBox="'+vb+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+inner+'</svg>'; }
@@ -651,7 +651,7 @@ function sceneQuiz(){
 }
 
 /* Shared leaderboard lives at /api/scores (served by api/scores.js on Vercel). Empty string = scores stay on this device only. */
-var SCORE_URL = '/api/scores?ns=test';
+var SCORE_URL = '/api/scores?ns=test2';
 
 /* Questions. rd = round (1 = on the drive to the escape room, 2 = after the escape room, on the way to the restaurant).
    Scored question: the FIRST answer is the correct one (answers are shuffled when the game starts).
@@ -966,7 +966,7 @@ window.addEventListener('hashchange', function(){ renderRounds(); checkRounds();
 /* ---------- Carpool ---------- */
 /* Everyone who is invited. Anyone not on the list can still add their own name. */
 var ROSTER = ['ויטאלי','אקווה','ירדן','קטיה','שירי','מוטי','רועי','חיים','עדי','עמית','שחר','מאט'];
-var RIDE_URL = '/api/ride?ns=test';
+var RIDE_URL = '/api/ride?ns=test2';
 var ride = {}, rideErr = '', rideOther = false, rideSeats = false, rideBusy = false;
 var RIDE_MSG = {full:'האוטו התמלא בינתיים. בחרו אוטו אחר.', has_riders:'יש לכם נוסעים. בטלו קודם את האוטו שלכם.', seats_low:'יש לכם כבר יותר נוסעים מהמקומות האלה.', no_car:'האוטו כבר לא זמין.', bad:'משהו השתבש, נסו שוב.'};
 
