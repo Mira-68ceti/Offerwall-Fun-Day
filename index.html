@@ -194,7 +194,6 @@ a{color:inherit;text-decoration:none}
 .board li:nth-child(1) .rk{background:#FFD23F;color:#2B2100}
 .board li:nth-child(2) .rk{background:#D5DCEB;color:#1B2440}
 .board li:nth-child(3) .rk{background:#E0A066;color:#2B1500}
-.board li .nm{font-weight:700;font-size:17px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .board li .sc{font-weight:900;font-size:18px;font-variant-numeric:tabular-nums}
 .board li.me{border-color:var(--lime);box-shadow:inset 0 0 0 1px var(--lime)}
 .board-wrap{padding:6px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px))}
@@ -239,6 +238,16 @@ a{color:inherit;text-decoration:none}
 .seats{display:flex;gap:6px}
 .seat{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);background:var(--bg)}
 .seat.on{background:var(--lime);border-color:var(--lime)}
+.round-msg{padding:6px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));min-height:20px;color:#FFD23F;font-weight:700}
+.card.lockedcard .art{filter:grayscale(.85) brightness(.7)}
+.board li .nm{display:grid;gap:2px;min-width:0}
+.board li .n1{font-weight:700;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.board li .rs{color:var(--muted);font-size:12px;font-weight:600}
+.g-sub{color:var(--muted);font-weight:700}
+.stage-banner{position:fixed;z-index:45;top:calc(8px + env(safe-area-inset-top, 0px));left:50%;transform:translateX(-50%);width:calc(100% - 20px);max-width:460px;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:var(--lime);color:#12210A;font-weight:800;box-shadow:0 10px 24px rgba(0,0,0,.45)}
+.stage-banner #sb-text{flex:1;min-width:0}
+.stage-banner .sb-go{background:#12210A;color:var(--lime);border-radius:12px;padding:8px 14px;font-weight:800}
+.stage-banner .sb-x{width:30px;height:30px;border-radius:50%;background:rgba(18,33,10,.15);font-size:14px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -314,12 +323,19 @@ a{color:inherit;text-decoration:none}
       <div><h2>משחקים</h2><p>רוצים להוכיח מי הכי חכם בצוות?</p></div>
     </div>
     <div class="grid1" id="game-card"></div>
+    <p class="g-muted round-msg" id="round-msg" role="status"></p>
     <div class="grid1" id="prizes-box"></div>
     <h3 class="board-h"><span>טבלת מובילים</span><button id="board-refresh" type="button">רענון</button></h3>
     <div class="board-wrap" id="board"></div>
   </section>
 
   <p class="foot gated">לחצו על תחנה כדי לראות הוראות והגעה</p>
+</div>
+
+<div class="stage-banner" id="stage-banner" hidden dir="rtl" lang="he" role="status">
+  <span id="sb-text"></span>
+  <button type="button" class="sb-go" id="sb-go">שחקו עכשיו</button>
+  <button type="button" class="sb-x" id="sb-x" aria-label="סגירה">✕</button>
 </div>
 
 <div class="sheet" id="game" role="dialog" aria-modal="true" aria-label="טריוויה צוותית" aria-hidden="true" dir="rtl" lang="he">
@@ -632,40 +648,52 @@ function sceneQuiz(){
 /* Shared leaderboard lives at /api/scores (served by api/scores.js on Vercel). Empty string = scores stay on this device only. */
 var SCORE_URL = '/api/scores';
 
-/* Questions. Scored question: the FIRST answer is the correct one (answers are shuffled when the game starts).
+/* Questions. rd = round (1 = on the drive to the escape room, 2 = after the escape room, on the way to the restaurant).
+   Scored question: the FIRST answer is the correct one (answers are shuffled when the game starts).
    Fun question (fun:true): no right or wrong, each answer has its own reply (r) and the order stays as written. */
 var QUIZ = [
-  {q:'מה זה CPM?', o:['עלות לאלף חשיפות','עלות לקליק מצטבר','עלות למוצר שנמכר','עלות להתקנה מרובה'], n:'האות M מגיעה מ-Mille, "אלף" בלטינית.'},
-  {q:'מה זה CPI?', o:['עלות להתקנה','עלות לחשיפה','עלות לאינטראקציה','עלות לפרסומת'], n:'משלמים על כל התקנה של האפליקציה.'},
-  {q:'מה ROAS מודד?', o:['החזר על הוצאות פרסום','שיעור שימור משתמשים','מספר צפיות בסרטון','מהירות טעינת מודעה'], n:'כמה הכנסה חוזרת על כל שקל שהושקע בפרסום.'},
-  {q:'ששירי אומרת לך "סתום" יותר מפעם אחת, מה זה אומר?', fun:true, o:[
+  {rd:1, q:'מה זה CPM?', o:['עלות לאלף חשיפות','עלות לקליק מצטבר','עלות למוצר שנמכר','עלות להתקנה מרובה'], n:'האות M מגיעה מ-Mille, "אלף" בלטינית.'},
+  {rd:1, q:'מה זה CPI?', o:['עלות להתקנה','עלות לחשיפה','עלות לאינטראקציה','עלות לפרסומת'], n:'משלמים על כל התקנה של האפליקציה.'},
+  {rd:1, q:'מה ROAS מודד?', o:['החזר על הוצאות פרסום','שיעור שימור משתמשים','מספר צפיות בסרטון','מהירות טעינת מודעה'], n:'כמה הכנסה חוזרת על כל שקל שהושקע בפרסום.'},
+  {rd:1, q:'מה זה ARPU?', o:['הכנסה ממוצעת למשתמש','מספר משתמשים פעילים','עלות רכישת משתמש','אחוז הקלקות על מודעה'], n:'מחלקים את ההכנסה במספר המשתמשים.'},
+  {rd:1, q:'מה קורה ב-Offerwall?', o:['משתמשים מקבלים תגמול על ביצוע משימות באפליקציות','מוצג באנר קבוע בתחתית המסך','מוכרים נתוני משתמשים','מריצים סרטון בלי אפשרות לדלג'], n:'זה בדיוק מה שאתם עושים כל יום.'},
+  {rd:1, q:'מה זה Rewarded Video?', o:['סרטון שהמשתמש בוחר לראות בתמורה לתגמול','סרטון שמתחיל לבד בכניסה לאפליקציה','קליפ של שחקן מפורסם','סרטון הדרכה למפרסמים'], n:'המשתמש בוחר, ולכן הוא גם מרוצה.'},
+  {rd:1, q:'באיזו עיר נמצא חדר הבריחה "מלחמת צוללות"?', o:['ראשון לציון','רחובות','תל אביב','חיפה'], n:'נתראה שם. החדר מתחיל ב-17:10.'},
+  {rd:2, q:'ששירי אומרת לך "סתום" יותר מפעם אחת, מה זה אומר?', fun:true, o:[
     {t:'היא מתה עליך', r:'שירי מהאופרוול, כן?'},
     {t:'היא סתם כועסת וזה לא קשור אליך', r:'שירי מהאופרוול, כן?'},
     {t:'תברח', r:'ואל תעצור.'},
     {t:'היא אף פעם לא קראה לי סתום', r:'שירי מהאופרוול, כן?'}]},
-  {q:'מה זה ARPU?', o:['הכנסה ממוצעת למשתמש','מספר משתמשים פעילים','עלות רכישת משתמש','אחוז הקלקות על מודעה'], n:'מחלקים את ההכנסה במספר המשתמשים.'},
-  {q:'מה קורה ב-Offerwall?', o:['משתמשים מקבלים תגמול על ביצוע משימות באפליקציות','מוצג באנר קבוע בתחתית המסך','מוכרים נתוני משתמשים','מריצים סרטון בלי אפשרות לדלג'], n:'זה בדיוק מה שאתם עושים כל יום.'},
-  {q:'עם איזו חיה שחתה אמא של עמית?', o:['כרישים','תנינים','דולפינים','לוויתנים'], n:'ככה זה כשאמא של עמית יוצאת לים.'},
-  {q:'איזו קונדיטוריה עם האופרציה הכי טובה במזרח התיכון?', o:['נומי','הרים בייקרי','בקריסט','בקרי'], n:'נומי, ללא תחרות.'},
-  {q:'מי זה קרלוס?', o:['הסטוקר של רועי','רוברטו קרלוס הכדורגלן','רוברטו קרלוס הזמר','בחור שעובד בבית קפה mae'], n:'רועי, כדאי לבדוק מי עומד מאחורי הדלת.'},
-  {q:'מי אמר את זה: "השעה 15:00 לא עשיתי כלום היום"?', o:['שירי','ערן','ויטאלי','ירדן'], n:'המשפט נחשף, והאשמה נשארת.'},
-  {q:'מה זה אומר "בול בפוני"?', o:['מתאים בדיוק','נפגע למישהי הפוני','פוני נפגע מטיל איראני','בול במצחיק'], n:'מעכשיו אתם יודעים להשתמש בזה נכון.'},
-  {q:'מה זה Rewarded Video?', o:['סרטון שהמשתמש בוחר לראות בתמורה לתגמול','סרטון שמתחיל לבד בכניסה לאפליקציה','קליפ של שחקן מפורסם','סרטון הדרכה למפרסמים'], n:'המשתמש בוחר, ולכן הוא גם מרוצה.'},
-  {q:'באיזו עיר נמצא חדר הבריחה "מלחמת צוללות"?', o:['ראשון לציון','רחובות','תל אביב','חיפה'], n:'נתראה שם. החדר מתחיל ב-17:10.'},
-  {q:'באיזו עיר אוכלים ב-Moo ve Moo?', o:['רחובות','ראשון לציון','נתניה','באר שבע'], n:'ב-19:00 השולחן מחכה.'}
+  {rd:2, q:'עם איזו חיה שחתה אמא של עמית?', o:['כרישים','תנינים','דולפינים','לוויתנים'], n:'ככה זה כשאמא של עמית יוצאת לים.'},
+  {rd:2, q:'איזו קונדיטוריה עם האופרציה הכי טובה במזרח התיכון?', o:['נומי','הרים בייקרי','בקריסט','בקרי'], n:'נומי, ללא תחרות.'},
+  {rd:2, q:'מי זה קרלוס?', o:['הסטוקר של רועי','רוברטו קרלוס הכדורגלן','רוברטו קרלוס הזמר','בחור שעובד בבית קפה mae'], n:'רועי, כדאי לבדוק מי עומד מאחורי הדלת.'},
+  {rd:2, q:'מי אמר את זה: "השעה 15:00 לא עשיתי כלום היום"?', o:['שירי','ערן','ויטאלי','ירדן'], n:'המשפט נחשף, והאשמה נשארת.'},
+  {rd:2, q:'מה זה אומר "בול בפוני"?', o:['מתאים בדיוק','נפגע למישהי הפוני','פוני נפגע מטיל איראני','בול במצחיק'], n:'מעכשיו אתם יודעים להשתמש בזה נכון.'},
+  {rd:2, q:'באיזו עיר אוכלים ב-Moo ve Moo?', o:['רחובות','ראשון לציון','נתניה','באר שבע'], n:'ב-19:00 השולחן מחכה.'}
 ];
+var ROUND_META = {1:{title:'סבב 1', sub:'בדרך לחדר הבריחה'}, 2:{title:'סבב 2', sub:'אחרי החדר, בדרך למסעדה'}};
+/* Each round opens by itself at a set time (Israel time, UTC+2 in December). */
+var ROUND_AT = {1: Date.UTC(2026, 11, 14, 14, 0, 0), 2: Date.UTC(2026, 11, 14, 16, 10, 0)};   /* 14.12.2026 at 16:00 and 18:10 */
+var ROUND_TIME = {1:'16:00', 2:'18:10'};
+function testMode(){ return location.hash === '#test'; }                  /* organiser preview: rounds open, nothing is saved to the shared table */
+function roundOpen(r){ return testMode() || Date.now() >= ROUND_AT[r]; }
+function roundQs(r){ return QUIZ.filter(function(q){ return q.rd === r; }); }
 function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
 
-/* ----- name + leaderboard storage ----- */
+/* ----- name + stored results ----- */
 function getName(){ try { return localStorage.getItem('ow-name') || ''; } catch(e){ return ''; } }
 function setName(v){ try { localStorage.setItem('ow-name', v); } catch(e){} }
+function pkey(r){ return (testMode() ? 'ow-test-played-' : 'ow-played-') + r; }
+function getPlayed(r){ try { return JSON.parse(localStorage.getItem(pkey(r)) || 'null'); } catch(e){ return null; } }
+function setPlayed(r, o){ try { localStorage.setItem(pkey(r), JSON.stringify(o)); } catch(e){} }
+function anyPlayedName(){ var p = getPlayed(1) || getPlayed(2); return p ? p.name : getName(); }
+
+/* ----- leaderboard storage (shared via /api/scores) ----- */
 function localBoard(){ try { return JSON.parse(localStorage.getItem('ow-board') || '[]'); } catch(e){ return []; } }
-function getPlayed(){ try { return JSON.parse(localStorage.getItem('ow-played') || 'null'); } catch(e){ return null; } }
-function setPlayed(o){ try { localStorage.setItem('ow-played', JSON.stringify(o)); } catch(e){} }
-function addLocal(name, score, total){
-  /* only the first score per name is kept */
-  var l = localBoard(), k = name.toLowerCase(), f = l.filter(function(x){ return String(x.name).toLowerCase()===k; })[0];
-  if(!f) l.push({name:name, score:score, total:total, t:Date.now()});
+function addLocal(o){
+  var l = localBoard(), k = o.name.toLowerCase(), f = l.filter(function(x){ return String(x.name).toLowerCase()===k; })[0];
+  if(!f){ f = {name:o.name, score:0, total:0, r1:null, r2:null, t:Date.now()}; l.push(f); }
+  if(!f['r'+o.round]){ f['r'+o.round] = {score:o.score, total:o.total}; f.score += o.score; f.total += o.total; }
   l.sort(function(a,b){ return b.score - a.score || a.t - b.t; });
   try { localStorage.setItem('ow-board', JSON.stringify(l)); } catch(e){}
 }
@@ -679,8 +707,9 @@ function fetchBoard(){
     });
   });
 }
-function nameTaken(name){
-  return fetchBoard().then(function(list){ var k = name.toLowerCase(); return (list || []).some(function(x){ return String(x.name).toLowerCase()===k; }); }).catch(function(){ return false; });
+function nameTaken(name, round){
+  if(testMode()) return Promise.resolve(false);
+  return fetchBoard().then(function(list){ var k = name.toLowerCase(); return (list || []).some(function(x){ return String(x.name).toLowerCase()===k && x['r'+round]; }); }).catch(function(){ return false; });
 }
 function postScore(o){
   var abs = /^https?:/.test(SCORE_URL);
@@ -688,19 +717,24 @@ function postScore(o){
                  : {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(o)};
   return fetch(SCORE_URL, opts).then(function(r){ if(!abs && !r.ok) throw new Error('save failed'); });
 }
-function getPending(){ try { return JSON.parse(localStorage.getItem('ow-pending') || 'null'); } catch(e){ return null; } }
-function setPending(o){ try { if(o) localStorage.setItem('ow-pending', JSON.stringify(o)); else localStorage.removeItem('ow-pending'); } catch(e){} }
+function getPending(){ try { var a = JSON.parse(localStorage.getItem('ow-pending2') || '[]'); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
+function setPending(a){ try { if(a && a.length) localStorage.setItem('ow-pending2', JSON.stringify(a)); else localStorage.removeItem('ow-pending2'); } catch(e){} }
 /* A score that could not be saved (no signal, server hiccup) is kept and re-sent automatically. */
+var flushing = null;
 function flushPending(){
-  var p = getPending();
-  if(!p || !SCORE_URL) return Promise.resolve();
-  return postScore(p).then(function(){ setPending(null); }).catch(function(){});
+  var q = getPending();
+  if(!q.length || !SCORE_URL) return Promise.resolve();
+  if(flushing) return flushing;
+  var rest = [];
+  flushing = q.reduce(function(p, o){ return p.then(function(){ return postScore(o).catch(function(){ rest.push(o); }); }); }, Promise.resolve())
+    .then(function(){ setPending(rest); flushing = null; }, function(){ flushing = null; });
+  return flushing;
 }
-function submitScore(name, score, total){
-  if(!SCORE_URL){ addLocal(name, score, total); return Promise.resolve(); }
-  var o = {name:name, score:score, total:total};
-  setPending(o);
-  return postScore(o).then(function(){ setPending(null); }).catch(function(){});
+function submitScore(o){
+  if(testMode()) return Promise.resolve();
+  if(!SCORE_URL){ addLocal(o); return Promise.resolve(); }
+  var q = getPending(); q.push(o); setPending(q);
+  return flushPending();
 }
 function boardEl(list, me, limit){
   var wrap = el('div','board-box');
@@ -709,7 +743,12 @@ function boardEl(list, me, limit){
   list.slice(0, limit || 50).forEach(function(x, i){
     var li = el('li', me && String(x.name).toLowerCase()===me.toLowerCase() ? 'me' : '');
     var rk = el('span','rk'); rk.textContent = i+1;
-    var nm = el('span','nm'); nm.textContent = x.name;
+    var nm = el('span','nm');
+    var n1 = el('span','n1'); n1.textContent = x.name; nm.appendChild(n1);
+    var parts = [];
+    if(x.r1) parts.push('סבב 1: ' + Number(x.r1.score) + '/' + Number(x.r1.total));
+    if(x.r2) parts.push('סבב 2: ' + Number(x.r2.score) + '/' + Number(x.r2.total));
+    if(parts.length){ var rs = el('small','rs'); rs.textContent = parts.join(' · '); nm.appendChild(rs); }
     var sc = el('span','sc'); sc.textContent = Number(x.score) + '/' + Number(x.total);
     li.appendChild(rk); li.appendChild(nm); li.appendChild(sc); ol.appendChild(li);
   });
@@ -733,9 +772,9 @@ function showBoard(target, me, limit, silent){
 }
 
 /* ----- game flow ----- */
-var G = {done:false, stage:'intro', i:0, score:0, total:0, marks:[], qs:[], locked:false, name:'', submitted:false};
+var G = {round:1, done:false, stage:'intro', i:0, score:0, total:0, marks:[], qs:[], locked:false, name:'', submitted:false};
 function gBuild(){
-  G.qs = QUIZ.map(function(q){
+  G.qs = roundQs(G.round).map(function(q){
     if(q.fun) return {q:q.q, fun:true, o:q.o.map(function(x){ return {t:x.t, r:x.r}; })};
     return {q:q.q, n:q.n, o:shuffle(q.o.map(function(t,k){ return {t:t, ok:k===0}; }))};
   });
@@ -747,21 +786,27 @@ function gProg(){
     var m = G.marks[k]; var c = m===1 ? 'ok' : m===0 ? 'no' : m===2 ? 'fun' : (k===G.i && G.stage==='q') ? 'cur' : '';
     return '<i class="'+c+'"></i>'; }).join('') + '</div>';
 }
+function combined(){
+  var s = 0, t = 0;
+  [1,2].forEach(function(r){ var p = getPlayed(r); if(p){ s += p.score; t += p.total; } });
+  return {score:s, total:t};
+}
 function gRender(){
-  var w = $('#g-wrap');
+  var w = $('#g-wrap'), meta = ROUND_META[G.round];
   if(G.stage === 'intro'){
-    w.innerHTML = '<div class="g-intro"><div class="g-title">טריוויה צוותית</div><p class="g-muted">כתבו את השם שלכם כדי לשמור ניקוד. אפשר לשחק פעם אחת בלבד, והציון הראשון הוא הקובע. הטבלה למטה מתעדכנת בזמן אמת.</p>' +
+    w.innerHTML = '<div class="g-intro"><div class="g-title"></div><p class="g-muted">כתבו את השם שלכם כדי לשמור ניקוד. אפשר לשחק כל סבב פעם אחת בלבד, והציון הראשון הוא הקובע. הציונים של שני הסבבים מצטברים.</p>' +
       '<label class="g-lab" for="g-name">השם שלכם</label><input id="g-name" class="g-input" type="text" maxlength="20" autocomplete="off" placeholder="למשל: רוהי">' +
       '<div class="g-err" id="g-err" role="alert"></div><button class="btn main-ok" id="g-go" type="button">יאללה, מתחילים</button>' +
       '<div id="g-prizes"></div><h3 class="g-h3">טבלת מובילים</h3><div id="g-board"></div></div>';
+    $('.g-title').textContent = 'טריוויה צוותית · ' + meta.title;
     $('#g-prizes').appendChild(prizesEl());
     var inp = $('#g-name'); inp.value = getName();
     function go(){
       var v = inp.value.replace(/\s+/g,' ').trim();
       if(v.length < 2){ $('#g-err').textContent = 'כתבו שם של לפחות 2 תווים.'; inp.focus(); return; }
       var btn = $('#g-go'); btn.disabled = true; $('#g-err').textContent = '';
-      nameTaken(v).then(function(taken){
-        if(taken){ btn.disabled = false; $('#g-err').textContent = 'השם הזה כבר שיחק. הוסיפו אות או כינוי כדי להבדיל.'; inp.focus(); return; }
+      nameTaken(v, G.round).then(function(taken){
+        if(taken){ btn.disabled = false; $('#g-err').textContent = 'השם הזה כבר שיחק בסבב הזה. הוסיפו אות או כינוי כדי להבדיל.'; inp.focus(); return; }
         G.name = v; setName(v); gBuild(); G.stage = 'q'; gRender(); $('#game').scrollTop = 0;
       });
     }
@@ -771,30 +816,37 @@ function gRender(){
     return;
   }
   if(G.stage === 'res'){
-    var r = G.total ? G.score / G.total : 0;
+    if(!G.done && !G.submitted){ setPlayed(G.round, {name:G.name, score:G.score, total:G.total}); }
+    var cb = combined();
+    var r = cb.total ? cb.score / cb.total : 0;
     var t = r>=.875 ? 'אגדת Offerwall' : r>=.625 ? 'מקצוען אמיתי' : r>=.375 ? 'מתחיל מבטיח' : 'צריך עוד קפה';
-    var m = r>=.875 ? 'כמעט בלי טעויות. מגיע לכם כבוד.' : r>=.625 ? 'ידע מרשים. הקפה והארוחה על חשבון הכבוד.' : r>=.375 ? 'לא רע בכלל. יש עוד מקום לצמוח.' : 'לא נורא, החידות בחדר הבריחה יעזרו.';
-    w.innerHTML = '<div class="g-res"><div class="g-name"></div><div class="g-big">'+G.score+'/'+G.total+'</div><div class="g-title">'+t+'</div><p>'+(G.done ? 'כבר שיחקתם. הציון הראשון הוא הקובע.' : m)+'</p>'+ gProg() +
-      '<div style="width:100%;display:grid;gap:10px;margin-top:6px"><button class="btn main-ok" id="g-home" type="button">חזרה ל-Offerwall</button></div>' +
+    var m = r>=.875 ? 'כמעט בלי טעויות. מגיע לכם כבוד.' : r>=.625 ? 'ידע מרשים. הקפה והארוחה על חשבון הכבוד.' : r>=.375 ? 'לא רע בכלל. יש עוד מקום לצמוח.' : 'לא נורא, עוד יש סבבים.';
+    var other = G.round === 1 ? 2 : 1;
+    var hint = '';
+    if(!getPlayed(other)) hint = roundOpen(other) ? ('סבב ' + other + ' פתוח. אפשר לשחק עכשיו.') : ('סבב ' + other + ' ייפתח ב-' + ROUND_TIME[other] + '.');
+    w.innerHTML = '<div class="g-res"><div class="g-name"></div><div class="g-sub"></div><div class="g-big">'+G.score+'/'+G.total+'</div><div class="g-title">'+t+'</div><p>'+(G.done ? 'כבר שיחקתם את הסבב הזה. הציון הראשון הוא הקובע.' : m)+'</p>'+ gProg() +
+      '<p class="g-muted" id="g-hint"></p><div style="width:100%;display:grid;gap:10px;margin-top:6px"><button class="btn main-ok" id="g-home" type="button">חזרה ל-Offerwall</button></div>' +
       '<h3 class="g-h3" style="justify-self:start">טבלת מובילים</h3><div id="g-board" style="width:100%;text-align:start"></div></div>';
     $('.g-name').textContent = G.name;
+    $('.g-sub').textContent = meta.title + (cb.total > G.total ? ' · סה״כ ' + cb.score + '/' + cb.total : '');
+    $('#g-hint').textContent = hint;
     $('#g-home').addEventListener('click', closeGame);
     var target = $('#g-board');
     if(G.done){ showBoard(target, G.name, 50); return; }
     target.innerHTML = '<p class="g-muted">שומר את התוצאה…</p>';
     if(!G.submitted){
       G.submitted = true;
-      setPlayed({name:G.name, score:G.score, total:G.total});
-      submitScore(G.name, G.score, G.total).then(function(){
-        showBoard($('#g-board'), G.name, 50); refreshMainBoard();
-        if(getPending()){ var w2 = $('#g-board'); if(w2) w2.insertAdjacentHTML('afterbegin', '<p class="g-muted">הציון עוד לא נשמר בטבלה. ננסה שוב אוטומטית כשיש חיבור.</p>'); }
+      submitScore({name:G.name, round:G.round, score:G.score, total:G.total}).then(function(){
+        showBoard($('#g-board'), G.name, 50); refreshMainBoard(); renderRounds();
+        if(getPending().length){ var w2 = $('#g-board'); if(w2) w2.insertAdjacentHTML('afterbegin', '<p class="g-muted">הציון עוד לא נשמר בטבלה. ננסה שוב אוטומטית כשיש חיבור.</p>'); }
       });
     }
     return;
   }
   var q = G.qs[G.i], n = G.qs.length;
-  w.innerHTML = '<div class="g-top"><span>שאלה '+(G.i+1)+' מתוך '+n+'</span><span class="g-score">'+'<span class="g-who"></span> · ניקוד: '+G.score+'</span></div>' + gProg() +
+  w.innerHTML = '<div class="g-top"><span></span><span class="g-score"><span class="g-who"></span> · ניקוד: '+G.score+'</span></div>' + gProg() +
     '<h2 class="g-q" id="g-q"></h2><div class="g-ans" id="g-ans"></div><div id="g-fb"></div>';
+  $('.g-top span').textContent = meta.title + ' · שאלה ' + (G.i+1) + ' מתוך ' + n;
   $('.g-who').textContent = G.name;
   $('#g-q').textContent = q.q;
   q.o.forEach(function(o){
@@ -827,10 +879,12 @@ function gAnswer(o, btn){
   fb.appendChild(nx);
   nx.focus();
 }
-function openGame(){
+function openGame(round){
+  if(!roundOpen(round)) return;
   opener = document.activeElement;
-  var pl = getPlayed();
-  if(pl){ G.done = true; G.name = pl.name; G.score = pl.score; G.total = pl.total; G.qs = []; G.marks = []; G.stage = 'res'; }
+  G.round = round;
+  var pl = getPlayed(round);
+  if(pl){ G.done = true; G.name = pl.name; G.score = pl.score; G.total = pl.total; G.qs = roundQs(round).map(function(){ return {}; }); G.marks = []; G.stage = 'res'; }
   else { G.done = false; G.stage = 'intro'; }
   gRender();
   var g = $('#game'); g.classList.add('open'); g.setAttribute('aria-hidden','false'); g.scrollTop = 0;
@@ -844,8 +898,7 @@ function closeGame(){
 }
 $('#g-back').addEventListener('click', closeGame);
 function refreshMainBoard(silent){
-  var p = getPlayed();
-  showBoard($('#board'), p ? p.name : getName(), 20, silent === true);
+  showBoard($('#board'), anyPlayedName(), 20, silent === true);
 }
 flushPending().then(function(){ refreshMainBoard(); });
 /* Live sync: re-read the shared table every 15 seconds while the page is visible. */
@@ -858,17 +911,52 @@ setInterval(function(){
 document.addEventListener('visibilitychange', function(){ if(!document.hidden) refreshMainBoard(true); });
 $('#board-refresh').addEventListener('click', function(){ refreshMainBoard(false); });
 
+/* ----- round cards on the main page ----- */
+function renderRounds(){
+  var box = $('#game-card'); if(!box) return;
+  box.innerHTML = '';
+  [1,2].forEach(function(r){
+    var meta = ROUND_META[r], open = roundOpen(r), pl = getPlayed(r), count = roundQs(r).length;
+    var b = el('button','card big' + (open ? '' : ' lockedcard')); b.type = 'button';
+    var pr = pl ? '<span class="pill r done">✓ ' + pl.score + '/' + pl.total + '</span>' : (open ? '' : '<span class="pill r">🔒 נעול</span>');
+    var rw = pl ? '<small>סטטוס</small><b class="word">הושלם</b>' : open ? '<small>סטטוס</small><b class="word">פתוח</b>' : '<small>נפתח ב-</small><b>' + ROUND_TIME[r] + '</b>';
+    b.innerHTML = '<div class="art"><span class="pill l">' + count + ' שאלות</span>' + pr + sceneQuiz() + '</div>' +
+      '<div class="gbar"><div class="tile" style="background:linear-gradient(150deg,#FF5FA2,#5B2BD6)"><svg aria-hidden="true"><use href="#ic-quiz"/></svg></div>' +
+      '<div class="tx"><div class="ti">טריוויה · ' + meta.title + '</div><div class="su">' + meta.sub + '</div></div>' +
+      '<div class="rw">' + rw + '</div></div>';
+    b.addEventListener('click', function(){
+      var m = $('#round-msg');
+      if(!roundOpen(r)){ if(m) m.textContent = meta.title + ' ייפתח ב-14.12 בשעה ' + ROUND_TIME[r] + '.'; return; }
+      if(m) m.textContent = '';
+      openGame(r);
+    });
+    box.appendChild(b);
+  });
+}
 $('#prizes-box').appendChild(prizesEl());
-(function(){
-  var b = el('button','card big'); b.type = 'button';
-  b.innerHTML = '<div class="art"><span class="pill l">8 שאלות</span>'+sceneQuiz()+'</div>' +
-    '<div class="gbar"><div class="tile" style="background:linear-gradient(150deg,#FF5FA2,#5B2BD6)"><svg aria-hidden="true"><use href="#ic-quiz"/></svg></div>' +
-    '<div class="tx"><div class="ti">טריוויה צוותית</div><div class="su">מי הכי חכם בצוות?</div></div>' +
-    '<div class="rw"><small>מקום ראשון</small><b class="word">קפה הפוך</b></div></div>';
-  b.addEventListener('click', openGame);
-  $('#game-card').appendChild(b);
-})();
-render();
+renderRounds();
+
+/* ----- rounds open by themselves: re-check the clock, show a banner when one opens ----- */
+function seenRound(r){ try { return localStorage.getItem('ow-seen-' + r) === '1'; } catch(e){ return false; } }
+function setSeenRound(r){ try { localStorage.setItem('ow-seen-' + r, '1'); } catch(e){} }
+function nextRoundToPlay(){ for(var r = 1; r <= 2; r++){ if(roundOpen(r) && !getPlayed(r)) return r; } return 0; }
+var lastRoundKey = null;
+function checkRounds(){
+  var key = [1,2].map(function(r){ return roundOpen(r) ? 1 : 0; }).join('');
+  var changed = lastRoundKey !== null && key !== lastRoundKey;
+  lastRoundKey = key;
+  if(changed) renderRounds();
+  var bn = $('#stage-banner'); if(!bn) return;
+  var r = testMode() ? 0 : nextRoundToPlay();
+  if(r && isUnlocked() && !seenRound(r)){
+    $('#sb-text').textContent = '🎉 ' + ROUND_META[r].title + ' של הטריוויה נפתח!';
+    bn.hidden = false;
+    if(changed){ try { if(navigator.vibrate) navigator.vibrate([200,100,200]); } catch(e){} }
+  } else { bn.hidden = true; }
+}
+$('#sb-x').addEventListener('click', function(){ var r = nextRoundToPlay(); if(r) setSeenRound(r); $('#stage-banner').hidden = true; });
+$('#sb-go').addEventListener('click', function(){ var r = nextRoundToPlay(); if(r){ setSeenRound(r); $('#stage-banner').hidden = true; openGame(r); } });
+window.addEventListener('hashchange', function(){ renderRounds(); checkRounds(); });
 
 /* ---------- Carpool ---------- */
 /* Everyone who is invited. Anyone not on the list can still add their own name. */
@@ -1057,6 +1145,7 @@ function codeOpened(){ try { return localStorage.getItem('ow-unlock') === String
 function isUnlocked(){ return Date.now() >= UNLOCK_AT || codeOpened(); }
 function applyLock(){
   var u = isUnlocked();
+  if(typeof checkRounds === 'function') setTimeout(checkRounds, 0);
   $('.app').classList.toggle('locked', !u);
   $('#lock-card').hidden = u;
   if(!u){
@@ -1078,7 +1167,8 @@ $('#code-form').addEventListener('submit', function(e){
     $('#code-err').textContent = 'הקוד לא נכון.'; $('#code-in').select();
   }
 });
+checkRounds();
+setInterval(checkRounds, 20000);
 </script>
-
 </body>
 </html>
