@@ -1,7 +1,7 @@
 // GET /api/quiz            -> {r1: bool, r2: bool, owner: bool}   (which rounds are open; header x-owner = owner code)
 // GET /api/quiz?round=1|2  -> {round, qs, prizes}   only if that round is open, or the owner code is sent
 // GET /api/quiz?stops=1    -> {stops}               owner only
-const { ROUND_AT, roundOpen, checkOwner } = require('./_guard');
+const { ROUND_AT, roundOpen, leaveOpen, checkOwner } = require('./_guard');
 const { STOPS, PRIZES, QUIZ } = require('./_data');
 
 module.exports = async (req, res) => {
@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
       return res.status(200).send(JSON.stringify({ round: r, qs: QUIZ.filter((x) => x.rd === r), prizes: PRIZES }));
     }
     return res.status(200).send(JSON.stringify({
-      r1: roundOpen(1), r2: roundOpen(2), owner,
+      r1: roundOpen(1), r2: roundOpen(2), leave: leaveOpen(), owner,
       bad: who === 'bad',
       counts: owner || roundOpen(1) ? { 1: QUIZ.filter((x) => x.rd === 1).length, 2: QUIZ.filter((x) => x.rd === 2).length } : null,
     }));

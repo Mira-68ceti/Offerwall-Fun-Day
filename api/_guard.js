@@ -31,6 +31,9 @@ const ROUND_AT = {
   2: AT('R2_AT', Date.UTC(2026, 11, 14, 16, 0, 0)),
 };
 const roundOpen = (r) => Date.now() >= ROUND_AT[r];
+// "Leave now" alert: 15:40 Israel time on 14.12 (set L_AT in Vercel to rehearse)
+const LEAVE_AT = AT('L_AT', Date.UTC(2026, 11, 14, 13, 40, 0));
+const leaveOpen = () => Date.now() >= LEAVE_AT;
 
 const safeEq = (a, b) => {
   const x = crypto.createHash('sha256').update(String(a)).digest();
@@ -55,4 +58,4 @@ async function checkOwner(req) {
   return 'bad';
 }
 
-module.exports = { redis, ROUND_AT, roundOpen, checkOwner };
+module.exports = { redis, ROUND_AT, roundOpen, leaveOpen, checkOwner };
