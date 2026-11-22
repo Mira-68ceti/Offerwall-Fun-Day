@@ -9,6 +9,7 @@ const findEnv = (suffix) => {
 };
 const BASE = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || findEnv('_REST_API_URL') || findEnv('_REST_URL');
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || findEnv('_REST_API_TOKEN') || findEnv('_REST_TOKEN');
+const { roundOpen } = require('./_guard');
 const BASE_KEY = 'ow:scores';
 // ?ns=test keeps a separate table, used for rehearsals.
 const nsOf = (req) => String((req.query && req.query.ns) || '').replace(/[^a-z0-9]/gi, '').slice(0, 12);
@@ -63,6 +64,7 @@ module.exports = async (req, res) => {
           total < 1 || total > 50 || score < 0 || score > total) {
         return res.status(400).json({ error: 'bad input' });
       }
+      if (!ns && !roundOpen(round)) return res.status(403).json({ error: 'closed' });
       const field = name.toLowerCase();
       const saved = await withLock(KEY + ':lock', async () => {
         const raw = await redis(['HGET', KEY, field]);
