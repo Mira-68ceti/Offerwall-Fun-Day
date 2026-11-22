@@ -1,9 +1,4 @@
-<!doctype html>
-<html lang="he">
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>html{padding:0}body{margin:0}[hidden]{display:none!important}</style>
-<meta charset="utf-8">
+<!doctype html><html lang="he"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>html{padding:0}body{margin:0}[hidden]{display:none!important}</style><meta charset="utf-8">
 <title>Offerwall Team Day</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -201,6 +196,8 @@ a{color:inherit;text-decoration:none}
 .board-h button{font-size:13px;font-weight:700;color:var(--muted);padding:6px 12px;border-radius:99px;border:1px solid var(--line)}
 .g-muted.lock{padding:14px 16px;border:1px dashed var(--line);border-radius:14px;text-align:center}
 .locked .gated{display:none!important}
+.locked.showgame #shelf-game{display:block!important}
+.locked.showgame .foot{display:none!important}
 .lockcard{margin:22px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));padding:22px 18px;border-radius:22px;text-align:center;background:linear-gradient(180deg,var(--surface),#12203F);border:1px dashed var(--line);display:grid;gap:8px;justify-items:center}
 .lockcard[hidden]{display:none}
 .lc-ic{font-size:40px;line-height:1}
@@ -217,7 +214,11 @@ a{color:inherit;text-decoration:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip.need{background:#4A3A12;border-color:#E0A21A;color:#FFE9B0}
 .chip.warn{background:#4A1F2A;border-color:var(--coral);color:#FFD6D8}
-.chip.ok{background:#1C3A2A;border-color:#3E8F5A;color:#E4FFE9;display:inline-flex;align-items:center;gap:6px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;font-weight:600;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-inline-end:6px;vertical-align:-1px;background:#5BD282}
+.legend i.need{background:#E0A21A}
+.legend i.warn{background:var(--coral)}
+.chip.ok{background:#1F5A34;border-color:#5BD282;color:#EAFFF0;display:inline-flex;align-items:center;gap:6px}
 .chip .x{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.15);font-size:12px;line-height:1}
 .r-row{display:flex;gap:10px}
 .r-row .g-input{flex:1;min-width:0}
@@ -284,10 +285,10 @@ a{color:inherit;text-decoration:none}
 
   <section class="lockcard" id="lock-card" hidden>
     <div class="lc-ic" aria-hidden="true">🔒</div>
-    <h2>שאר ההפתעות נפתחות ב-14.12 בבוקר</h2>
+    <h2 id="lock-h">ההפתעות נפתחות ב-14.12</h2>
     <p class="lc-when" id="lock-when"></p>
-    <p class="g-muted">המסלול, המשחק, הפרסים וטבלת המובילים. בינתיים סגרו הסעה.</p>
-    <form class="code-form" id="code-form" autocomplete="off">
+    <p class="g-muted" id="lock-sub">בינתיים סגרו הסעה.</p>
+    <form class="code-form" id="code-form" autocomplete="off" hidden>
       <label class="g-lab" for="code-in">יש לכם קוד?</label>
       <div class="r-row">
         <input id="code-in" class="g-input code-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••" aria-label="קוד פתיחה" dir="ltr">
@@ -519,29 +520,8 @@ function sceneDinner(){
 var SCENES = {office:sceneOffice, coffee:sceneCoffee, escape:sceneSub, dinner:sceneDinner};
 
 /* ---------- Content: edit this list to change the day's details ---------- */
-function wz(q){ return 'https://waze.com/ul?q=' + encodeURIComponent(q) + '&navigate=yes'; }
-var STOPS = [
-  {id:1, scene:'office', icon:'ic-office', tileBg:'linear-gradient(150deg,#4C6BFF,#1D2F9C)', title:'יוצאים מהמשרד', sub:'נקודת הפתיחה', lead:'כולם יחד, ומשם יוצאים להרפתקה.',
-   pill:'יציאה בערך 15:45', when:'יציאה בערך 15:45', place:'המשרד',
-   steps:['היו במשרד בזמן. יוצאים בסביבות 15:45.','ודאו שאתם יודעים עם מי נוסעים לראשון לציון.','כשכולם מוכנים, יוצאים לדרך.'],
-   navs:[{label:'נווטו למשרד ב-Waze', url:wz('דרך מנחם בגין 121 תל אביב')}]},
-  {id:2, scene:'escape', icon:'ic-sub', tileBg:'linear-gradient(150deg,#1FB6C9,#0B3A7A)', title:'מלחמת צוללות', sub:'ראשון לציון', lead:'הצוללת צוללת, החמצן אוזל… תצליחו לעלות בזמן?',
-   time:'17:10', when:'17:10', meet:'להיות שם ב-17:00', place:'ראשון לציון',
-   prizeShort:'היסטוריה', prizeText:'אין פרס. אבל הקבוצה המנצחת תיזכר לעולמים בהיסטוריה.',
-   steps:['הגיעו לראשון לציון עד 17:00. החדר מתחיל ב-17:10.','חניה מומלצת: הרצל 185, ראשון לציון.','לחצו על כפתור ה-Waze כדי לנווט לחניה, או ישר לחדר.','בפנים עובדים כצוות ומשתפים כל רמז.'],
-   navs:[{label:'נווטו לחניה (הרצל 185) ב-Waze', url:wz('הרצל 185 ראשון לציון')},{label:'נווטו לחדר ב-Waze', url:wz('ההתערבות ראשון לציון')}]},
-  {id:3, scene:'dinner', icon:'ic-burger', tileBg:'linear-gradient(150deg,#FF6A4D,#8E1B4E)', title:'Moo ve Moo', sub:'רחובות', lead:'השולחן שלכם מחכה. אחרי כל החידות מגיע הזמן לאכול.',
-   time:'19:00', when:'19:00', place:'רחובות',
-   steps:['הגיעו לרחובות ל-19:00.','לחצו על "נווטו ב-Waze" כדי לנסוע ישר למסעדה.','שבים, אוכלים ומספרים מי היה הגיבור של החדר.'],
-   navs:[{label:'נווטו למסעדה ב-Waze', url:wz('Moo ve Moo Rehovot')}]}
-];
-
-/* Trivia prizes (silly on purpose). Edit freely. */
-var PRIZES = [
-  {i:'☕', t:'מקום ראשון: קפה הפוך שרועי מכין במיוחד בשבילכם (פעם אחת בלבד)'},
-  {i:'📸', t:'מקום שני: תמונה עם רועי'},
-  {i:'👏', t:'מקום שלישי: מחיאות כפיים מכל הצוות'}
-];
+var STOPS = [];      /* loaded from the server, only for the organiser */
+var PRIZES = [];     /* loaded from the server when the first round opens */
 function prizesEl(){
   var box = el('div','prizes'); box.appendChild(el('h3','g-h3','הפרסים'));
   var ol = el('ol','prize-list');
@@ -648,36 +628,26 @@ function sceneQuiz(){
 /* Shared leaderboard lives at /api/scores (served by api/scores.js on Vercel). Empty string = scores stay on this device only. */
 var SCORE_URL = '/api/scores';
 
-/* Questions. rd = round (1 = on the drive to the escape room, 2 = after the escape room, on the way to the restaurant).
-   Scored question: the FIRST answer is the correct one (answers are shuffled when the game starts).
-   Fun question (fun:true): no right or wrong, each answer has its own reply (r) and the order stays as written. */
-var QUIZ = [
-  {rd:1, q:'מה זה CPM?', o:['עלות לאלף חשיפות','עלות לקליק מצטבר','עלות למוצר שנמכר','עלות להתקנה מרובה'], n:'האות M מגיעה מ-Mille, "אלף" בלטינית.'},
-  {rd:1, q:'מה זה CPI?', o:['עלות להתקנה','עלות לחשיפה','עלות לאינטראקציה','עלות לפרסומת'], n:'משלמים על כל התקנה של האפליקציה.'},
-  {rd:1, q:'מה ROAS מודד?', o:['החזר על הוצאות פרסום','שיעור שימור משתמשים','מספר צפיות בסרטון','מהירות טעינת מודעה'], n:'כמה הכנסה חוזרת על כל שקל שהושקע בפרסום.'},
-  {rd:1, q:'מה זה ARPU?', o:['הכנסה ממוצעת למשתמש','מספר משתמשים פעילים','עלות רכישת משתמש','אחוז הקלקות על מודעה'], n:'מחלקים את ההכנסה במספר המשתמשים.'},
-  {rd:1, q:'מה קורה ב-Offerwall?', o:['משתמשים מקבלים תגמול על ביצוע משימות באפליקציות','מוצג באנר קבוע בתחתית המסך','מוכרים נתוני משתמשים','מריצים סרטון בלי אפשרות לדלג'], n:'זה בדיוק מה שאתם עושים כל יום.'},
-  {rd:1, q:'מה זה Rewarded Video?', o:['סרטון שהמשתמש בוחר לראות בתמורה לתגמול','סרטון שמתחיל לבד בכניסה לאפליקציה','קליפ של שחקן מפורסם','סרטון הדרכה למפרסמים'], n:'המשתמש בוחר, ולכן הוא גם מרוצה.'},
-  {rd:1, q:'באיזו עיר נמצא חדר הבריחה "מלחמת צוללות"?', o:['ראשון לציון','רחובות','תל אביב','חיפה'], n:'נתראה שם. החדר מתחיל ב-17:10.'},
-  {rd:2, q:'ששירי אומרת לך "סתום" יותר מפעם אחת, מה זה אומר?', fun:true, o:[
-    {t:'היא מתה עליך', r:'שירי מהאופרוול, כן?'},
-    {t:'היא סתם כועסת וזה לא קשור אליך', r:'שירי מהאופרוול, כן?'},
-    {t:'תברח', r:'ואל תעצור.'},
-    {t:'היא אף פעם לא קראה לי סתום', r:'שירי מהאופרוול, כן?'}]},
-  {rd:2, q:'עם איזו חיה שחתה אמא של עמית?', o:['כרישים','תנינים','דולפינים','לוויתנים'], n:'ככה זה כשאמא של עמית יוצאת לים.'},
-  {rd:2, q:'איזו קונדיטוריה עם האופרציה הכי טובה במזרח התיכון?', o:['נומי','הרים בייקרי','בקריסט','בקרי'], n:'נומי, ללא תחרות.'},
-  {rd:2, q:'מי זה קרלוס?', o:['הסטוקר של רועי','רוברטו קרלוס הכדורגלן','רוברטו קרלוס הזמר','בחור שעובד בבית קפה mae'], n:'רועי, כדאי לבדוק מי עומד מאחורי הדלת.'},
-  {rd:2, q:'מי אמר את זה: "השעה 15:00 לא עשיתי כלום היום"?', o:['שירי','ערן','ויטאלי','ירדן'], n:'המשפט נחשף, והאשמה נשארת.'},
-  {rd:2, q:'מה זה אומר "בול בפוני"?', o:['מתאים בדיוק','נפגע למישהי הפוני','פוני נפגע מטיל איראני','בול במצחיק'], n:'מעכשיו אתם יודעים להשתמש בזה נכון.'},
-  {rd:2, q:'באיזו עיר אוכלים ב-Moo ve Moo?', o:['רחובות','ראשון לציון','נתניה','באר שבע'], n:'ב-19:00 השולחן מחכה.'}
-];
+var QCACHE = {};     /* questions are fetched from the server only when a round is open */
 var ROUND_META = {1:{title:'סבב 1', sub:'בדרך לחדר הבריחה'}, 2:{title:'סבב 2', sub:'אחרי החדר, בדרך למסעדה'}};
-/* Each round opens by itself at a set time (Israel time, UTC+2 in December). */
-var ROUND_AT = {1: Date.UTC(2026, 11, 14, 14, 0, 0), 2: Date.UTC(2026, 11, 14, 16, 10, 0)};   /* 14.12.2026 at 16:00 and 18:10 */
-var ROUND_TIME = {1:'16:00', 2:'18:10'};
-function testMode(){ return location.hash === '#test'; }                  /* organiser preview: rounds open, nothing is saved to the shared table */
-function roundOpen(r){ return testMode() || Date.now() >= ROUND_AT[r]; }
-function roundQs(r){ return QUIZ.filter(function(q){ return q.rd === r; }); }
+/* Which rounds are open is decided by the server clock (14.12.2026: round 1 at 16:00, round 2 at 18:00 Israel time). */
+var ROUND_TIME = {1:'16:00', 2:'18:00'};
+var STATUS = {r1:false, r2:false, owner:false, counts:null};
+function testMode(){ return !!STATUS.owner; }   /* organiser preview: sees everything, nothing is saved to the shared table */
+function roundOpen(r){ return STATUS.owner || !!STATUS['r' + r]; }
+function roundQs(r){ return QCACHE[r] || []; }
+function ownerKey(){ try { return localStorage.getItem('ow-k') || ''; } catch(e){ return ''; } }
+function apiGet(url){
+  var k = ownerKey(), opts = {cache:'no-store'};
+  if(k) opts.headers = {'x-owner': k};
+  return fetch(url + (url.indexOf('?')<0 ? '?' : '&') + 't=' + Date.now(), opts).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(j){ if(!r.ok){ var e = new Error(j.error || ('HTTP ' + r.status)); e.code = j.error; throw e; } return j; });
+  });
+}
+function loadRoundQs(r){
+  if(QCACHE[r]) return Promise.resolve();
+  return apiGet('/api/quiz?round=' + r).then(function(j){ QCACHE[r] = j.qs || []; if(j.prizes && j.prizes.length){ PRIZES = j.prizes; paintPrizes(); } });
+}
 function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
 
 /* ----- name + stored results ----- */
@@ -795,23 +765,30 @@ function gRender(){
   var w = $('#g-wrap'), meta = ROUND_META[G.round];
   if(G.stage === 'intro'){
     w.innerHTML = '<div class="g-intro"><div class="g-title"></div><p class="g-muted">כתבו את השם שלכם כדי לשמור ניקוד. אפשר לשחק כל סבב פעם אחת בלבד, והציון הראשון הוא הקובע. הציונים של שני הסבבים מצטברים.</p>' +
-      '<label class="g-lab" for="g-name">השם שלכם</label><input id="g-name" class="g-input" type="text" maxlength="20" autocomplete="off" placeholder="למשל: רוהי">' +
+      '<label class="g-lab" for="g-name">בחרו את השם שלכם</label><select id="g-name" class="g-input"></select><input id="g-other" class="g-input" type="text" maxlength="20" autocomplete="off" placeholder="כתבו את השם שלכם" hidden>' +
       '<div class="g-err" id="g-err" role="alert"></div><button class="btn main-ok" id="g-go" type="button">יאללה, מתחילים</button>' +
       '<div id="g-prizes"></div><h3 class="g-h3">טבלת מובילים</h3><div id="g-board"></div></div>';
     $('.g-title').textContent = 'טריוויה צוותית · ' + meta.title;
     $('#g-prizes').appendChild(prizesEl());
-    var inp = $('#g-name'); inp.value = getName();
+    var sel = $('#g-name'), oth = $('#g-other'), me0 = getName();
+    var o0 = h('option','','בחרו את השם שלכם'); o0.value = ''; sel.appendChild(o0);
+    ROSTER.forEach(function(n){ var o = h('option','',n); o.value = n; sel.appendChild(o); });
+    if(me0 && ROSTER.indexOf(me0) < 0){ var ox = h('option','',me0); ox.value = me0; sel.appendChild(ox); }
+    var oo = h('option','','השם שלי לא ברשימה…'); oo.value = '__other'; sel.appendChild(oo);
+    sel.value = me0 || '';
+    sel.addEventListener('change', function(){ oth.hidden = sel.value !== '__other'; if(!oth.hidden) oth.focus(); $('#g-err').textContent = ''; });
     function go(){
-      var v = inp.value.replace(/\s+/g,' ').trim();
-      if(v.length < 2){ $('#g-err').textContent = 'כתבו שם של לפחות 2 תווים.'; inp.focus(); return; }
+      var v = sel.value === '__other' ? oth.value.replace(/\s+/g,' ').trim() : sel.value;
+      if(!v){ $('#g-err').textContent = 'בחרו את השם שלכם מהרשימה.'; sel.focus(); return; }
+      if(v.length < 2){ $('#g-err').textContent = 'כתבו שם של לפחות 2 תווים.'; oth.focus(); return; }
       var btn = $('#g-go'); btn.disabled = true; $('#g-err').textContent = '';
       nameTaken(v, G.round).then(function(taken){
-        if(taken){ btn.disabled = false; $('#g-err').textContent = 'השם הזה כבר שיחק בסבב הזה. הוסיפו אות או כינוי כדי להבדיל.'; inp.focus(); return; }
+        if(taken){ btn.disabled = false; $('#g-err').textContent = 'השם הזה כבר שיחק בסבב הזה. אם זה אתם, פנו לרוהי.'; return; }
         G.name = v; setName(v); gBuild(); G.stage = 'q'; gRender(); $('#game').scrollTop = 0;
       });
     }
     $('#g-go').addEventListener('click', go);
-    inp.addEventListener('keydown', function(e){ if(e.key === 'Enter') go(); });
+    oth.addEventListener('keydown', function(e){ if(e.key === 'Enter') go(); });
     showBoard($('#g-board'), getName(), 20);
     return;
   }
@@ -881,6 +858,11 @@ function gAnswer(o, btn){
 }
 function openGame(round){
   if(!roundOpen(round)) return;
+  loadRoundQs(round).then(function(){ openGame2(round); }).catch(function(){
+    var m = $('#round-msg'); if(m) m.textContent = 'לא הצלחנו לטעון את השאלות. נסו שוב בעוד רגע.';
+  });
+}
+function openGame2(round){
   opener = document.activeElement;
   G.round = round;
   var pl = getPlayed(round);
@@ -916,11 +898,11 @@ function renderRounds(){
   var box = $('#game-card'); if(!box) return;
   box.innerHTML = '';
   [1,2].forEach(function(r){
-    var meta = ROUND_META[r], open = roundOpen(r), pl = getPlayed(r), count = roundQs(r).length;
+    var meta = ROUND_META[r], open = roundOpen(r), pl = getPlayed(r), count = STATUS.counts ? STATUS.counts[r] : 0;
     var b = el('button','card big' + (open ? '' : ' lockedcard')); b.type = 'button';
     var pr = pl ? '<span class="pill r done">✓ ' + pl.score + '/' + pl.total + '</span>' : (open ? '' : '<span class="pill r">🔒 נעול</span>');
     var rw = pl ? '<small>סטטוס</small><b class="word">הושלם</b>' : open ? '<small>סטטוס</small><b class="word">פתוח</b>' : '<small>נפתח ב-</small><b>' + ROUND_TIME[r] + '</b>';
-    b.innerHTML = '<div class="art"><span class="pill l">' + count + ' שאלות</span>' + pr + sceneQuiz() + '</div>' +
+    b.innerHTML = '<div class="art">' + (count ? '<span class="pill l">' + count + ' שאלות</span>' : '') + pr + sceneQuiz() + '</div>' +
       '<div class="gbar"><div class="tile" style="background:linear-gradient(150deg,#FF5FA2,#5B2BD6)"><svg aria-hidden="true"><use href="#ic-quiz"/></svg></div>' +
       '<div class="tx"><div class="ti">טריוויה · ' + meta.title + '</div><div class="su">' + meta.sub + '</div></div>' +
       '<div class="rw">' + rw + '</div></div>';
@@ -933,7 +915,7 @@ function renderRounds(){
     box.appendChild(b);
   });
 }
-$('#prizes-box').appendChild(prizesEl());
+function paintPrizes(){ var b = $('#prizes-box'); if(!b || !PRIZES.length) return; b.innerHTML = ''; b.appendChild(prizesEl()); }
 renderRounds();
 
 /* ----- rounds open by themselves: re-check the clock, show a banner when one opens ----- */
@@ -956,7 +938,7 @@ function checkRounds(){
 }
 $('#sb-x').addEventListener('click', function(){ var r = nextRoundToPlay(); if(r) setSeenRound(r); $('#stage-banner').hidden = true; });
 $('#sb-go').addEventListener('click', function(){ var r = nextRoundToPlay(); if(r){ setSeenRound(r); $('#stage-banner').hidden = true; openGame(r); } });
-window.addEventListener('hashchange', function(){ renderRounds(); checkRounds(); });
+window.addEventListener('hashchange', function(){ renderRounds(); checkRounds(); if(typeof applyLock==='function') applyLock(); });
 
 /* ---------- Carpool ---------- */
 /* Everyone who is invited. Anyone not on the list can still add their own name. */
@@ -1018,20 +1000,17 @@ function renderRides(){
   if(rideErr) box.appendChild(h('p','g-muted','לא הצלחנו לטעון את ההסעות. נסו לרענן. (' + rideErr + ')'));
 
   /* 1. Status for everyone */
-  var un = ROSTER.filter(function(n){ return !ride[n]; });
-  var seek = ROSTER.filter(function(n){ return ride[n] && ride[n].r === 'need'; });
-  var done = ROSTER.length - un.length - seek.length;
+  var done = ROSTER.filter(function(n){ return ride[n] && ride[n].r !== 'need'; }).length;
   var sum = h('div','r-card');
   sum.appendChild(h('div','r-big', done + ' מתוך ' + ROSTER.length + ' סידרו דרך הגעה'));
   var bar = h('div','r-bar'); var fill = h('i'); fill.style.width = (ROSTER.length ? Math.round(100*done/ROSTER.length) : 0) + '%'; bar.appendChild(fill); sum.appendChild(bar);
-  if(seek.length){
-    sum.appendChild(h('div','g-lab','מחפשים הסעה'));
-    var sw = h('div','chips'); seek.forEach(function(n){ sw.appendChild(nameChip(n,'need')); }); sum.appendChild(sw);
-  }
-  if(un.length){
-    sum.appendChild(h('div','g-lab','עוד לא ענו'));
-    var cw = h('div','chips'); un.forEach(function(n){ cw.appendChild(nameChip(n,'warn')); }); sum.appendChild(cw);
-  } else if(!seek.length && ROSTER.length){ sum.appendChild(h('div','r-ok','כולם מסודרים. אפשר לנסוע.')); }
+  var allc = h('div','chips');
+  ROSTER.forEach(function(n){ var st = ride[n]; allc.appendChild(nameChip(n, !st ? 'warn' : st.r === 'need' ? 'need' : 'ok')); });
+  sum.appendChild(allc);
+  var lg = h('div','legend');
+  [['ok','יש הסעה'],['need','מחפשים הסעה'],['warn','עוד לא ענו']].forEach(function(x){ var sp = h('span'); sp.appendChild(h('i', x[0])); sp.appendChild(document.createTextNode(x[1])); lg.appendChild(sp); });
+  sum.appendChild(lg);
+  if(ROSTER.length && done === ROSTER.length) sum.appendChild(h('div','r-ok','כולם מסודרים. אפשר לנסוע.'));
   box.appendChild(sum);
 
   /* 2. Me */
@@ -1131,44 +1110,50 @@ function renderRides(){
 loadRide();
 setInterval(function(){ if(!document.hidden && !rideBusy) loadRide(); }, 8000);
 
-/* ---------- Unlock: everything except the carpool opens on the morning of the event ---------- */
-var UNLOCK_AT = Date.UTC(2026, 11, 14, 4, 0, 0); /* 14.12.2026, 06:00 Israel time */
-var CODE_HASH = 3822770691609794; /* hash of the early-access code, not the code itself */
-function cyrb53(str, seed){ seed = seed || 0;
-  var h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
-  for (var i = 0, ch; i < str.length; i++) { ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507); h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507); h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
-}
-function codeOpened(){ try { return localStorage.getItem('ow-unlock') === String(CODE_HASH); } catch(e){ return false; } }
-function isUnlocked(){ return Date.now() >= UNLOCK_AT || codeOpened(); }
+/* ---------- Access: the server decides what this visitor may see ---------- */
+function isUnlocked(){ return !!(STATUS.owner || STATUS.r1 || STATUS.r2); }
 function applyLock(){
-  var u = isUnlocked();
-  if(typeof checkRounds === 'function') setTimeout(checkRounds, 0);
-  $('.app').classList.toggle('locked', !u);
-  $('#lock-card').hidden = u;
-  if(!u){
-    var ms = UNLOCK_AT - Date.now(), days = Math.floor(ms / 86400000), hrs = Math.ceil(ms / 3600000);
-    $('#lock-when').textContent = days >= 2 ? 'עוד ' + days + ' ימים' : hrs > 1 ? 'עוד ' + hrs + ' שעות' : 'עוד מעט';
+  var owner = !!STATUS.owner, anyOpen = !!(STATUS.r1 || STATUS.r2);
+  var app = $('.app');
+  app.classList.toggle('locked', !owner);
+  app.classList.toggle('showgame', !owner && anyOpen);
+  $('#lock-card').hidden = owner;
+  if(!owner){
+    $('#lock-h').textContent = anyOpen ? 'הטריוויה פתוחה' : 'ההפתעות נפתחות ב-14.12';
+    $('#lock-when').textContent = anyOpen ? '' : 'הטריוויה נפתחת ב-16:00';
+    $('#lock-sub').textContent = anyOpen ? 'שאר ההפתעות יתגלו בהמשך הערב.' : 'בינתיים סגרו הסעה.';
   }
-  $('#hero-when').textContent = u ? '14.12 · ' + STOPS.length + ' תחנות' : '14.12';
+  $('#code-form').hidden = owner || location.hash !== '#owner';
+  $('#hero-when').textContent = owner && STOPS.length ? '14.12 · ' + STOPS.length + ' תחנות' : '14.12';
+}
+function loadStatus(){
+  return apiGet('/api/quiz').then(function(j){
+    if(j.bad){ try { localStorage.removeItem('ow-k'); } catch(e){} }
+    STATUS = {r1:!!j.r1, r2:!!j.r2, owner:!!j.owner, counts:j.counts || null};
+    var p = Promise.resolve();
+    if(STATUS.owner && !STOPS.length){
+      p = apiGet('/api/quiz?stops=1').then(function(x){ STOPS = x.stops || []; render(); });
+    }
+    if((STATUS.owner || STATUS.r1) && !PRIZES.length){ p = p.then(function(){ return loadRoundQs(1).catch(function(){}); }); }
+    if(!STATUS.owner && STOPS.length){ STOPS = []; $('#main').innerHTML = ''; }
+    return p.then(function(){ applyLock(); renderRounds(); checkRounds(); });
+  }).catch(function(){ /* offline: keep what we have */ });
 }
 applyLock();
-setInterval(applyLock, 60000);
+loadStatus();
+setInterval(function(){ if(!document.hidden) loadStatus(); }, 20000);
+document.addEventListener('visibilitychange', function(){ if(!document.hidden) loadStatus(); });
 $('#code-form').addEventListener('submit', function(e){
   e.preventDefault();
   var v = $('#code-in').value.trim();
-  if(cyrb53('ow-code:' + v) === CODE_HASH){
-    try { localStorage.setItem('ow-unlock', String(CODE_HASH)); } catch(err){}
-    $('#code-err').textContent = ''; applyLock(); window.scrollTo(0, 0);
-    if(!isUnlocked()) $('#code-err').textContent = 'לא הצלחנו לשמור את הפתיחה בדפדפן הזה. נסו דפדפן רגיל.';
-  } else {
-    $('#code-err').textContent = 'הקוד לא נכון.'; $('#code-in').select();
-  }
+  if(!v) return;
+  try { localStorage.setItem('ow-k', v); } catch(err){}
+  $('#code-err').textContent = '';
+  loadStatus().then(function(){
+    if(STATUS.owner){ $('#code-in').value = ''; window.scrollTo(0, 0); }
+    else { $('#code-err').textContent = 'הקוד לא נכון.'; $('#code-in').select(); }
+  });
 });
 checkRounds();
 setInterval(checkRounds, 20000);
-</script>
-</body>
-</html>
+</script></body></html>
