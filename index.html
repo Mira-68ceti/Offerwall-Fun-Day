@@ -285,7 +285,7 @@ a{color:inherit;text-decoration:none}
 
   <section class="lockcard" id="lock-card" hidden>
     <div class="lc-ic" aria-hidden="true">🔒</div>
-    <h2 id="lock-h">ההפתעות נפתחות ב-14.12</h2>
+    <h2 id="lock-h">ההפתעות נפתחות ב-14.12 בשעה 16:00</h2>
     <p class="lc-when" id="lock-when"></p>
     <p class="g-muted" id="lock-sub">בינתיים סגרו הסעה.</p>
     <form class="code-form" id="code-form" autocomplete="off" hidden>
@@ -1119,8 +1119,8 @@ function applyLock(){
   app.classList.toggle('showgame', !owner && anyOpen);
   $('#lock-card').hidden = owner;
   if(!owner){
-    $('#lock-h').textContent = anyOpen ? 'הטריוויה פתוחה' : 'ההפתעות נפתחות ב-14.12';
-    $('#lock-when').textContent = anyOpen ? '' : 'הטריוויה נפתחת ב-16:00';
+    $('#lock-h').textContent = anyOpen ? 'הטריוויה פתוחה' : 'ההפתעות נפתחות ב-14.12 בשעה 16:00';
+    $('#lock-when').textContent = '';
     $('#lock-sub').textContent = anyOpen ? 'שאר ההפתעות יתגלו בהמשך הערב.' : 'בינתיים סגרו הסעה.';
   }
   $('#code-form').hidden = owner || location.hash !== '#owner';
